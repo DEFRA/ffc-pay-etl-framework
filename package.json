@@ -1,0 +1,56 @@
+{
+  "name": "ffc-pay-etl-framework",
+  "version": "0.0.1",
+  "publisher": "Defra",
+  "main": "dist/cjs/index.js",
+  "private": false,
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watchAll",
+    "dev": "nodemon src/index.js",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p ./tsconfig.esm.json && mv dist/esm/index.js dist/esm/index.mjs",
+    "build:cjs": "tsc -p ./tsconfig.cjs.json",
+    "prepack": "npm run build",
+    "example": "node ./src/examples/csv-multi-tool-validator.js"
+  },
+  "keywords": [
+    "ETL"
+  ],
+  "author": "Charlie Benger-Stevenson",
+  "license": "ISC",
+  "description": "A framework for creating ETL pipelines in node",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.4",
+    "prettier": "3.3.3"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "csv": "^6.3.9",
+    "mariadb": "^3.3.1",
+    "mysql2": "^3.10.3",
+    "oracledb": "^6.5.1",
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7",
+    "tedious": "^18.2.4",
+    "typescript": "^5.5.3",
+    "validator": "^13.12.0"
+  },
+  "files": [
+    "/dist/**/*"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  }
+}

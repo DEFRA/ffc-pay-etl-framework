@@ -1,0 +1,14 @@
+./devcontainer/databases
+.config/
+.DS_Store
+.npm/
+dist
+.standard-v12-cache/
+.vscode
+.env
+node_modules
+npm-debug.log
+test-output
+output.sql
+SoilType_Output.csv
+ffc-pay-etl-framework*.tgz

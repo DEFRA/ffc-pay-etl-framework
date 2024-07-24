@@ -1,0 +1,15 @@
+services:
+  etl:
+    image: mcr.microsoft.com/devcontainers/universal:2-linux
+    volumes:
+      - ../:/workspace:cached
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - ./databases/postgres:/var/lib/postgresql
+      - ./postgres_init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_PASSWORD=ppp
+      - POSTGRES_DB=etl_db

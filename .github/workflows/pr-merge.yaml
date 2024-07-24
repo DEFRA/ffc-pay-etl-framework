@@ -1,0 +1,21 @@
+name: pr-merge-action
+run-name: increment package.json verion on pr merge
+on:
+  pull-request:
+    types: [closed]
+
+jobs:
+  version_bump:
+    # this job will only run if the PR has been merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - name: ⬇️ Checkout repo
+      uses: actions/checkout@v4
+    - name: ⏫ Bumping version
+      uses: jpb06/bump-package@latest
+      with:
+        major-keywords: BREAKING CHANGE
+        minor-keywords: feat,minor
+        patch-keywords: fix,chore
+        should-default-to-patch: true
