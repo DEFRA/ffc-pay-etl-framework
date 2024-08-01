@@ -25,7 +25,8 @@
 				"andys8.jest-snippets",
 				"chris-noring.node-snippets",
 				"cweijan.vscode-postgresql-client2",
-				"mechatroner.rainbow-csv"
+				"mechatroner.rainbow-csv",
+				"firsttris.vscode-jest-runner"
 			]
 		}
 	},
