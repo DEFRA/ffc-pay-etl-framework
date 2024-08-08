@@ -1,0 +1,25 @@
+{
+  "projectName": "ffc-pay-etl-framework",
+  "projectOwner": "DEFRA",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "suityou01",
+      "name": "Charlie Benger-Stevenson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7422644?v=4",
+      "profile": "https://github.com/suityou01",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "linkToUsage": true
+}
