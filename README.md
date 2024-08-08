@@ -1,6 +1,6 @@
 ## 🚀 Features
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 - 💾 CSV Source and Destination
 - 👮 Validators
@@ -68,6 +68,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/suityou01"><img src="https://avatars.githubusercontent.com/u/7422644?v=4?s=100" width="100px;" alt="Charlie Benger-Stevenson"/><br /><sub><b>Charlie Benger-Stevenson</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=suityou01" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/GodsonLeigh"><img src="https://avatars.githubusercontent.com/u/139965284?v=4?s=100" width="100px;" alt="GodsonLeigh"/><br /><sub><b>GodsonLeigh</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=GodsonLeigh" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
