@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "Defra",
   "main": "dist/cjs/index.js",
   "private": false,
@@ -19,7 +19,7 @@
     "ETL"
   ],
   "author": "Charlie Benger-Stevenson",
-  "license": "ISC",
+  "license": "OGL-UK-3.0",
   "description": "A framework for creating ETL pipelines in node",
   "devDependencies": {
     "jest": "^29.7.0",
