@@ -1,7 +1,7 @@
 name: pr-merge-action
 run-name: increment package.json verion on pr merge
 on:
-  pull-request:
+  pull_request:
     types: [closed]
 
 jobs:
