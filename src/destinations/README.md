@@ -27,7 +27,7 @@ CSVFileDestination({
   headers: true,
   includeErrors: false,
   quotationMarks: true,
-});
+})
 ```
 
 ### Example
@@ -66,7 +66,7 @@ PostgresDestination({
       targetType: "varchar",
     },
   ],
-});
+})
 ```
 
 ### Example
@@ -99,7 +99,7 @@ SQLFileDestination({
       targetType: "varchar",
     },
   ],
-});
+})
 ```
 
 ### Example
