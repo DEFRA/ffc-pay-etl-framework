@@ -23,7 +23,7 @@ function UniqueValidator(options){
             callback()
         },
         transform(chunk, _, callback){
-            const { _columns } = chunk;
+            const { _columns } = chunk
             const colIndex = _columns.indexOf(self.column)
             const uniqueValue = chunk[colIndex]
             if(checkIsUnique(uniqueValue)){

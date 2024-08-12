@@ -28,5 +28,5 @@ describe('csvLoader tests', () => {
                     callback(null, chunk)
                 }
             }))
-    });
-});
+    })
+})

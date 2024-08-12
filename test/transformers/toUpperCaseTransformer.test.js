@@ -1,4 +1,4 @@
-const { expect } = require("@jest/globals");
+const { expect } = require("@jest/globals")
 const { ToUpperCaseTransformer } = require("../../src/transformers")
 const { Readable, PassThrough } = require("node:stream")
 
@@ -22,5 +22,5 @@ describe('toUpperCaseTransformer tests', () => {
                 }
             })
         )
-    });
-});
+    })
+})

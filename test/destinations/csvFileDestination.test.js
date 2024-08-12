@@ -1,4 +1,4 @@
-const { expect } = require("@jest/globals");
+const { expect } = require("@jest/globals")
 const { CSVFileDestination } = require("../../src/destinations")
 const { Readable } = require("node:stream")
 const fs = require("fs")
@@ -34,5 +34,5 @@ describe('csvFileDestination tests', () => {
                 )
                 done()
             })
-    });
-});
+    })
+})
