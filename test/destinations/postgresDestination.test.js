@@ -2,6 +2,8 @@ const { expect } = require("@jest/globals")
 const { PostgresDestination } = require("../../src/destinations")
 const { Readable } = require("node:stream")
 const { Sequelize } = require('sequelize')
+const mockPasswordLenth = 36
+const mockSubstringLength = 7
 
 jest.mock("sequelize", () => ({
     Sequelize: jest.fn().mockReturnValue({
@@ -18,7 +20,7 @@ jest.mock('fs', () => ({
 const buildPostgresDestination = () => {
     return PostgresDestination({
         username: "postgres",
-        password : (Math.random() + 1).toString(36).substring(7),
+        password : (Math.random() + 1).toString(mockPasswordLenth).substring(mockSubstringLength),
         database: "etl_db",
         host: "postgres",
         table: "target",
@@ -62,7 +64,7 @@ describe('postgresDestination tests', () => {
             })
     })
     it('should connect to different port', () => {
-        const mockPassword = (Math.random() + 1).toString(36).substring(7)
+        const mockPassword = (Math.random() + 1).toString(mockPasswordLenth).substring(mockSubstringLength)
         PostgresDestination({
             username: "postgres",
             password : mockPassword,
