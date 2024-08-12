@@ -1,7 +1,7 @@
-const { expect } = require("@jest/globals");
+const { expect } = require("@jest/globals")
 const { SQLFileDestination, SQL_MODE } = require("../../src/destinations/sqlFileDestination")
 const { Readable, PassThrough } = require("node:stream")
-const fs = require("fs");
+const fs = require("fs")
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -51,5 +51,5 @@ describe('sqlFileDestination tests', () => {
                 )
                 done()
             })
-    });
-});
+    })
+})

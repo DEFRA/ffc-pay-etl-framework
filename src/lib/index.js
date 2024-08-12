@@ -54,7 +54,7 @@ function Etl(){
         return self
     }
 
-    return;
+    return
 }
 
 module.exports = {

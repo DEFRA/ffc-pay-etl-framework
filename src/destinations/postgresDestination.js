@@ -1,4 +1,4 @@
-const { Transform } = require("node:stream")
+const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
 
 const DEFAULT_PORT = 5432

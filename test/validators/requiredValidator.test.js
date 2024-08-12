@@ -1,4 +1,4 @@
-const { expect } = require("@jest/globals");
+const { expect } = require("@jest/globals")
 const { RequiredValidator } = require("../../src/validators/requiredValidator")
 const { Readable, PassThrough } = require("node:stream")
 
