@@ -18,7 +18,7 @@ jest.mock('fs', () => ({
 const buildPostgresDestination = () => {
     return PostgresDestination({
         username: "postgres",
-        password : "ppp",
+        password : (Math.random() + 1).toString(36).substring(7),
         database: "etl_db",
         host: "postgres",
         table: "target",
@@ -62,9 +62,10 @@ describe('postgresDestination tests', () => {
             })
     })
     it('should connect to different port', () => {
+        const mockPassword = (Math.random() + 1).toString(36).substring(7)
         PostgresDestination({
             username: "postgres",
-            password : "ppp",
+            password : mockPassword,
             database: "etl_db",
             host: "postgres",
             port: 5433,
@@ -91,7 +92,7 @@ describe('postgresDestination tests', () => {
             expect(Sequelize).toBeCalledWith(
                 "etl_db", 
                 "postgres", 
-                "ppp", 
+                mockPassword, 
                 {
                     "dialect": "postgres", 
                     "host": "postgres", 
