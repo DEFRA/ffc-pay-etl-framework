@@ -57,5 +57,45 @@ describe('postgresDestination tests', () => {
                 console.log(chunk)
                 done()
             })
-    });
-});
+    })
+    it('should connect to different port', () => {
+        const uut = PostgresDestination({
+            username: "postgres",
+            password : "ppp",
+            database: "etl_db",
+            host: "postgres",
+            port: 5433,
+            table: "target",
+            includeErrors: false,
+            mapping: [
+                {
+                    column: "column1",
+                    targetColumn: "target_column1",
+                    targetType: "varchar"
+                },
+                {
+                    column: "column2",
+                    targetColumn: "target_column2",
+                    targetType: "varchar"
+                },
+                {
+                    column: "column3",
+                    targetColumn: "target_column3",
+                    targetType: "varchar"
+                },
+            ]})
+            expect(Sequelize).toBeCalledTimes(1)
+            expect(Sequelize).toBeCalledWith(
+                "etl_db", 
+                "postgres", 
+                "ppp", 
+                {
+                    "dialect": "postgres", 
+                    "host": "postgres", 
+                    "logging": false, 
+                    "port": 5433
+                }
+            )
+        }
+    )
+})
