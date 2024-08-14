@@ -1,20 +1,24 @@
-const { expect } = require("@jest/globals");
-const { PostgresDestination } = require("../../src/destinations")
-const { Readable } = require("node:stream")
+const { expect } = require('@jest/globals')
+const { PostgresDestination } = require('../../src/destinations')
+const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
 
 jest.mock("sequelize", () => ({
-    Sequelize: jest.fn().mockReturnValue({
-        authenticate: jest.fn().mockResolvedValue(true),
-        query: jest.fn().mockResolvedValue([[],1])
+        Sequelize: jest.fn().mockImplementation(()=> {
+            return {
+                authenticate: jest.fn().mockResolvedValue(true),
+                query: jest.fn().mockResolvedValue([[],1])
+            }
+        })
     })
-}))
+)
+
+Sequelize.prototype.authenticate = jest.fn()
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
     open: jest.fn().mockReturnValue({ fd : 1 })
-  }
-))
+}))
 
 describe('postgresDestination tests', () => {
     beforeEach(()=> {
@@ -100,4 +104,44 @@ describe('postgresDestination tests', () => {
                 done()
             })
     })
-});
+    it('should connect to different port', () => {
+        PostgresDestination({
+            username: "postgres",
+            password : "abc",
+            database: "etl_db",
+            host: "postgres",
+            port: 5433,
+            table: "target",
+            includeErrors: false,
+            mapping: [
+                {
+                    column: "column1",
+                    targetColumn: "target_column1",
+                    targetType: "varchar"
+                },
+                {
+                    column: "column2",
+                    targetColumn: "target_column2",
+                    targetType: "varchar"
+                },
+                {
+                    column: "column3",
+                    targetColumn: "target_column3",
+                    targetType: "varchar"
+                },
+            ]})
+            expect(Sequelize).toBeCalledTimes(1)
+            expect(Sequelize).toBeCalledWith(
+                "etl_db", 
+                "postgres", 
+                "abc", 
+                {
+                    "dialect": "postgres", 
+                    "host": "postgres", 
+                    "logging": false, 
+                    "port": 5433
+                }
+            )
+        }
+    )
+})

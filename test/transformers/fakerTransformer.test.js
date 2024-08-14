@@ -1,4 +1,4 @@
-const { expect } = require("@jest/globals");
+const { expect } = require("@jest/globals")
 const { FakerTransformer } = require("../../src/transformers")
 const { Readable, PassThrough } = require("node:stream")
 
@@ -29,5 +29,5 @@ describe('fakerTransformer tests', () => {
                 }
             })
         )
-    });
-});
+    })
+})

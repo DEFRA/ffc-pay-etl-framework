@@ -1,6 +1,7 @@
 const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
+const DEFAULT_PORT = 5432
 /**
  * 
  * @param {Object} options 
@@ -9,6 +10,7 @@ const debug = require('debug')('destination')
  * @param {Object} options.password
  * @param {Object} options.database
  * @param {Object} options.host
+ * @param {Object} options.port
  * @param {Object} options.mapping
  * @param {Object} options.includeErrors
  * @returns Transform
@@ -20,15 +22,16 @@ function PostgresDestination(options){
     const password = options.password
     const database = options.database
     const host = options.host
+    const port = options.port || DEFAULT_PORT
     const mapping = options.mapping
     const includeErrors = options.includeErrors
-    let sequelize
-    try {
-        sequelize = new Sequelize(database, username, password, {
-            host: host,
-            dialect: 'postgres',
-            logging: false
-        })
+
+    const sequelize = new Sequelize(database, username, password, {
+        host: host,
+        port: port,
+        dialect: 'postgres',
+        logging: false
+    })
 
         sequelize.authenticate()
         debug('sequelize.authenticate succeeded')
