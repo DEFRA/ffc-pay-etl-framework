@@ -32,7 +32,7 @@ function PostgresDestination(options){
         dialect: 'postgres',
         logging: false
     })
-
+    try{
         sequelize.authenticate()
         debug('sequelize.authenticate succeeded')
     } catch(e){
