@@ -20,6 +20,32 @@ jest.mock('fs', () => ({
     open: jest.fn().mockReturnValue({ fd : 1 })
 }))
 
+const config = {
+    username: "postgres",
+    password : "ppp",
+    database: "etl_db",
+    host: "postgres",
+    table: "target",
+    includeErrors: false,
+    mapping: [
+        {
+            column: "column1",
+            targetColumn: "target_column1",
+            targetType: "varchar"
+        },
+        {
+            column: "column2",
+            targetColumn: "target_column2",
+            targetType: "varchar"
+        },
+        {
+            column: "column3",
+            targetColumn: "target_column3",
+            targetType: "varchar"
+        },
+    ]
+}
+
 describe('postgresDestination tests', () => {
     beforeEach(()=> {
         Sequelize.prototype.authenticate = jest.fn().mockResolvedValue(true)
@@ -29,31 +55,7 @@ describe('postgresDestination tests', () => {
         jest.resetAllMocks()
     })
     it('should write a row', (done) => {
-        const uut = PostgresDestination({
-            username: "postgres",
-            password : "ppp",
-            database: "etl_db",
-            host: "postgres",
-            table: "target",
-            includeErrors: false,
-            mapping: [
-                {
-                    column: "column1",
-                    targetColumn: "target_column1",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column2",
-                    targetColumn: "target_column2",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column3",
-                    targetColumn: "target_column3",
-                    targetType: "varchar"
-                },
-            ]
-        })
+        const uut = PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -67,31 +69,7 @@ describe('postgresDestination tests', () => {
     })
     it('should produce debug output', (done) => {
         const logSpy = jest.spyOn(process.stderr, 'write')
-        const uut = PostgresDestination({
-            username: "postgres",
-            password : "ppp",
-            database: "etl_db",
-            host: "postgres",
-            table: "target",
-            includeErrors: false,
-            mapping: [
-                {
-                    column: "column1",
-                    targetColumn: "target_column1",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column2",
-                    targetColumn: "target_column2",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column3",
-                    targetColumn: "target_column3",
-                    targetType: "varchar"
-                },
-            ]
-        })
+        const uut = PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
