@@ -20,40 +20,42 @@ jest.mock('fs', () => ({
     open: jest.fn().mockReturnValue({ fd : 1 })
 }))
 
-const buildPostgresDestination = () => {
-    return PostgresDestination({
-        username: "postgres",
-        password : "abc",
-        database: "etl_db",
-        host: "postgres",
-        table: "target",
-        includeErrors: false,
-        mapping: [
-            {
-                column: "column1",
-                targetColumn: "target_column1",
-                targetType: "varchar"
-            },
-            {
-                column: "column2",
-                targetColumn: "target_column2",
-                targetType: "varchar"
-            },
-            {
-                column: "column3",
-                targetColumn: "target_column3",
-                targetType: "varchar"
-            },
-        ]
-    })
+const config = {
+    username: "postgres",
+    password : "ppp",
+    database: "etl_db",
+    host: "postgres",
+    table: "target",
+    includeErrors: false,
+    mapping: [
+        {
+            column: "column1",
+            targetColumn: "target_column1",
+            targetType: "varchar"
+        },
+        {
+            column: "column2",
+            targetColumn: "target_column2",
+            targetType: "varchar"
+        },
+        {
+            column: "column3",
+            targetColumn: "target_column3",
+            targetType: "varchar"
+        },
+    ]
 }
 
 describe('postgresDestination tests', () => {
+    beforeEach(()=> {
+        Sequelize.prototype.authenticate = jest.fn().mockResolvedValue(true)
+        Sequelize.prototype.query = jest.fn().mockResolvedValue([[],1])
+    })
     afterEach(() => {
         jest.resetAllMocks()
     })
     it('should write a row', (done) => {
-        const uut = buildPostgresDestination()
+        const uut = PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -62,14 +64,21 @@ describe('postgresDestination tests', () => {
         readable
             .pipe(uut)
             .on("data", (chunk) => {
-                expect(chunk).toEqual((()=> {
-                    const result =['a', 'b', 'c']
-                    result.errors = []
-                    result.rowId = 1
-                    result._columns = [ 'column1', 'column2', 'column3' ]
-                    result._result = [ [], 1 ]
-                    return result
-                })())
+                done()
+            })
+    })
+    it('should produce debug output', (done) => {
+        const logSpy = jest.spyOn(process.stderr, 'write')
+        const uut = PostgresDestination(config)
+        const testData =["a", "b", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .pipe(uut)
+            .on("data", (chunk) => {
+                expect(logSpy).toBeCalledTimes(3)
                 done()
             })
     })

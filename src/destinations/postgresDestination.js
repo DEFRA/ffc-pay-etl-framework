@@ -1,6 +1,6 @@
 const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
-
+const debug = require('debug')('destination')
 const DEFAULT_PORT = 5432
 /**
  * 
@@ -32,8 +32,13 @@ function PostgresDestination(options){
         dialect: 'postgres',
         logging: false
     })
-
-    sequelize.authenticate()
+    try{
+        sequelize.authenticate()
+        debug('sequelize.authenticate succeeded')
+    } catch(e){
+        debug('sequelize.authenticate failed')
+        debug(e)
+    }
 
     function getMappingForColumn(column){
         const [map] = mapping.filter(m => m.column === column)
@@ -46,6 +51,7 @@ function PostgresDestination(options){
         })
         .join(",")}) VALUES (${chunk._columns.map((column,index) => {
             let mapping = getMappingForColumn(column)
+            if(!mapping) debug('Mapping not found for column %s', column)
             if(mapping.targetType === "varchar" || mapping.targetType === "char")
                 return `'${chunk[index]}'`
             return chunk[index]
@@ -59,11 +65,14 @@ function PostgresDestination(options){
             // @ts-ignore
             if(chunk.errors.length === 0 | options.includeErrors){
                 insertStatement = writeInsertStatement(chunk)
+                debug('Insert statement: [%s]', insertStatement)
                 sequelize.query(insertStatement)
                     .then(result => {
+                        debug('result %o', result)
                         chunk._result = result
                         callback(null, chunk)
                     }).catch(error => {
+                        debug('error %o', error)
                         chunk.errors.push(error)
                         callback(null, chunk)
                     })
