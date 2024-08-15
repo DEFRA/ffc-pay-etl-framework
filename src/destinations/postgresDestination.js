@@ -32,12 +32,14 @@ function PostgresDestination(options){
         dialect: 'postgres',
         logging: false
     })
+
     try{
         sequelize.authenticate()
         debug('sequelize.authenticate succeeded')
     } catch(e){
         debug('sequelize.authenticate failed')
         debug(e)
+        throw e
     }
 
     function getMappingForColumn(column){
@@ -54,28 +56,39 @@ function PostgresDestination(options){
             if(!mapping) debug('Mapping not found for column %s', column)
             if(mapping.targetType === "varchar" || mapping.targetType === "char")
                 return `'${chunk[index]}'`
-            return chunk[index]
+            return chunk[index] ? chunk[index] : 'null'
         })})`
         return statement
     }
     return new Transform({
         objectMode: true,
-        transform(chunk, _, callback){
+        emitClose: true,
+        construct(callback){
+                        // @ts-ignore
+            this.sequelize = sequelize
+            callback()
+        },
+        write(chunk, _, callback){
             let insertStatement
             // @ts-ignore
             if(chunk.errors.length === 0 | options.includeErrors){
                 insertStatement = writeInsertStatement(chunk)
                 debug('Insert statement: [%s]', insertStatement)
-                sequelize.query(insertStatement)
+                // @ts-ignore
+                this.sequelize.query(insertStatement)
                     .then(result => {
                         debug('result %o', result)
                         chunk._result = result
+                        // @ts-ignore
                         callback(null, chunk)
                     }).catch(error => {
                         debug('error %o', error)
                         chunk.errors.push(error)
+                        // @ts-ignore
                         callback(null, chunk)
                     })
+            } else {
+                debug('Chunk has errors %o', chunk)
             }
         }
     })

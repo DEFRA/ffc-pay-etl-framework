@@ -19,12 +19,13 @@ function CSVLoader(options){
             .pipe(new Transform({
                 readableObjectMode: true,
                 writableObjectMode: true,
+                emitClose: true,
                 transform(chunk, _, callback){
                     chunk["_columns"] = options.columns
                     callback(null, chunk)
                 }
             })
-            )
+        )
     }
     return csvLoader
 }

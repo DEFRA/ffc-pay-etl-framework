@@ -1,24 +1,15 @@
 const { expect } = require('@jest/globals')
 const { PostgresDestination } = require('../../src/destinations')
-const { Readable } = require('node:stream')
+const { Readable, PassThrough } = require('node:stream')
 const { Sequelize } = require('sequelize')
-
-jest.mock("sequelize", () => ({
-        Sequelize: jest.fn().mockImplementation(()=> {
-            return {
-                authenticate: jest.fn().mockResolvedValue(true),
-                query: jest.fn().mockResolvedValue([[],1])
-            }
-        })
-    })
-)
-
-Sequelize.prototype.authenticate = jest.fn()
+jest.mock('sequelize')
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
     open: jest.fn().mockReturnValue({ fd : 1 })
 }))
+
+const logSpy = jest.spyOn(process.stderr, 'write')
 
 const config = {
     username: "postgres",
@@ -47,12 +38,8 @@ const config = {
 }
 
 describe('postgresDestination tests', () => {
-    beforeEach(()=> {
-        Sequelize.prototype.authenticate = jest.fn().mockResolvedValue(true)
-        Sequelize.prototype.query = jest.fn().mockResolvedValue([[],1])
-    })
     afterEach(() => {
-        jest.resetAllMocks()
+        jest.clearAllMocks()
     })
     it('should write a row', (done) => {
         const uut = PostgresDestination(config)
@@ -62,13 +49,13 @@ describe('postgresDestination tests', () => {
         testData._columns = ["column1", "column2", "column3"]
         const readable = Readable.from([testData])
         readable
-            .pipe(uut)
-            .on("data", (chunk) => {
+            .on('close', (result) => {
+                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
                 done()
             })
+            .pipe(uut)
     })
     it('should produce debug output', (done) => {
-        const logSpy = jest.spyOn(process.stderr, 'write')
         const uut = PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
@@ -76,11 +63,11 @@ describe('postgresDestination tests', () => {
         testData._columns = ["column1", "column2", "column3"]
         const readable = Readable.from([testData])
         readable
-            .pipe(uut)
-            .on("data", (chunk) => {
+            .on('close', () => {
                 expect(logSpy).toBeCalledTimes(3)
                 done()
             })
+            .pipe(uut)
     })
     it('should connect to different port', () => {
         PostgresDestination({
