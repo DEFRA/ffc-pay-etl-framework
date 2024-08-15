@@ -31,7 +31,7 @@ function Etl(){
             .pump(this.loader)
             .pipe(
                 compose(
-                    RowMetaData,
+                    RowMetaData(),
                     ...self.validatorList,
                     ...self.transformationList,
                     ...self.destinationList
