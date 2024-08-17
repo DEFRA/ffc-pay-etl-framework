@@ -24,6 +24,35 @@
   "jest": {
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/*.test.js"
+    ],
+    "coverageDirectory": "test-output",
+    "coverageReporters": [
+      "text-summary",
+      "lcov"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/test-output/",
+      "<rootDir>/test/"
+    ],
+    "modulePathIgnorePatterns": [
+      "node_modules"
+    ],
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "suiteName": "jest tests",
+          "outputDirectory": "test-output",
+          "outputName": "junit.xml"
+        }
+      ]
     ]
   },
   "devDependencies": {
@@ -37,6 +66,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "csv": "^6.3.9",
+    "jest-junit": "16.0.0",
     "mariadb": "^3.3.1",
     "mysql2": "^3.10.3",
     "oracledb": "^6.5.1",
