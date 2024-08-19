@@ -46,14 +46,28 @@ function PostgresDestination(options){
         const [map] = mapping.filter(m => m.column === column)
         return map
     }
+    function isKeyWord(column) {
+        return ['USER'].includes(column.toUpperCase())
+    }
     function writeInsertStatement(chunk){
         let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
             let mapping = getMappingForColumn(column)
-            return mapping ? mapping.targetColumn : column
+            return mapping
+                ?
+                isKeyWord(mapping.targetColumn)
+                    ? `"${mapping.targetColumn}"`
+                    : mapping.targetColumn
+                : isKeyWord(column)
+                    ? `"${mapping.column}"`
+                    : mapping.column
         })
         .join(",")}) VALUES (${chunk._columns.map((column,index) => {
             let mapping = getMappingForColumn(column)
             if(!mapping) debug('Mapping not found for column %s', column)
+            if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
+                debug('Source data is not a number')
+                return 0
+            }
             if(mapping.targetType === "varchar" || mapping.targetType === "char")
                 return `'${chunk[index]}'`
             return chunk[index] ? chunk[index] : 'null'
