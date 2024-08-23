@@ -1,6 +1,6 @@
 const { expect } = require('@jest/globals')
 const { PostgresDestination } = require('../../src/destinations')
-const { Readable, PassThrough } = require('node:stream')
+const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
 jest.mock('sequelize')
 
