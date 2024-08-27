@@ -1,4 +1,6 @@
 // @ts-nocheck
+const EventEmitter = require('node:events')
+const util = require('node:util')
 const { RowMetaData } = require("./rowMetaData")
 const { compose } = require("node:stream")
 
@@ -16,6 +18,7 @@ const { compose } = require("node:stream")
  * @returns Etl
  */
 function Etl(){
+    EventEmitter.call(this)
     let self = this
     self.validatorList = []
     self.transformationList = []
@@ -36,7 +39,9 @@ function Etl(){
                     ...self.transformationList,
                     ...self.destinationList
                 )
-            )
+                // @ts-ignore
+            ).on('finish', (data) => self.emit('finish', data))
+            return self
     }
 
     this.validator = (validator) => {
@@ -56,6 +61,8 @@ function Etl(){
 
     return
 }
+
+util.inherits(Etl, EventEmitter)
 
 module.exports = {
     Etl
