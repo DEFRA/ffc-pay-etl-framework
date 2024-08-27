@@ -1,6 +1,6 @@
+// @ts-nocheck
 const EventEmitter = require('node:events')
 const util = require('node:util')
-// @ts-nocheck
 const { RowMetaData } = require("./rowMetaData")
 const { compose } = require("node:stream")
 
@@ -39,6 +39,7 @@ function Etl(){
                     ...self.transformationList,
                     ...self.destinationList
                 )
+                // @ts-ignore
             ).on('finish', (data) => self.emit('finish', data))
             return self
     }
