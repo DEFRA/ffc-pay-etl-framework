@@ -1,5 +1,4 @@
 const { Transform } = require("node:stream")
-const { faker } = require("@faker-js/faker")
 
 /**
  * 
@@ -12,11 +11,19 @@ const { faker } = require("@faker-js/faker")
  *               }
  *           ]
  *       }
+ * @param {String} options.locale
  * @returns StreamReader
  */
 function FakerTransformer(options){
     let self = this
     self.columns = options.columns
+    let faker;
+    if(options.locale){
+        faker = require(`@faker-js/faker/locale/${options.locale}`).faker
+    } else {
+        faker = require('@faker-js/faker').faker
+    }
+    
     function getFaker(fakerType) {
         return fakerType.split('.').reduce((a,b) => {
             return Object.keys(a).length === 0 ? faker[b] : a[b]
