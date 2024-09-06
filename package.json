@@ -20,6 +20,7 @@
   ],
   "author": "Charlie Benger-Stevenson",
   "license": "OGL-UK-3.0",
+  "repository": "https://github.com/DEFRA/ffc-pay-etl-framework",
   "description": "A framework for creating ETL pipelines in node",
   "jest": {
     "setupFiles": [

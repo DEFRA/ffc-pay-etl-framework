@@ -23,9 +23,6 @@ describe('fakerTransformer tests', () => {
                 objectMode: true,
                 transform(chunk,_,callback){
                     expect(chunk.errors.length).toEqual(0)
-<<<<<<< Updated upstream
-                    expect(chunk[1]).not.toEqual("B")
-=======
                     expect(chunk[1]).not.toEqual("b")
                     done()
                     callback(null, chunk)
@@ -57,7 +54,6 @@ describe('fakerTransformer tests', () => {
                     expect(chunk[1]).not.toEqual("b")
                     const regex = /^([A-Za-z]{2}[\d]{1,2}[A-Za-z]?)[\s]+([\d][A-Za-z]{2})$/
                     expect(chunk[1].match(regex)[0]).toEqual(chunk[1])
->>>>>>> Stashed changes
                     done()
                     callback(null, chunk)
                 }
