@@ -37,7 +37,7 @@ function Etl(){
                     RowMetaData(),
                     ...self.validatorList,
                     ...self.transformationList,
-                    ...self.destinationList
+                    ...self.destinationList.map(dl => dl.on('result', (data) => self.emit('result', data)))
                 )
                 // @ts-ignore
             ).on('finish', (data) => self.emit('finish', data))

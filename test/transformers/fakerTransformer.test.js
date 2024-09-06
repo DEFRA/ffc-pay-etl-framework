@@ -50,7 +50,6 @@ describe('fakerTransformer tests', () => {
             .pipe(new PassThrough({
                 objectMode: true,
                 transform(chunk,_,callback){
-                    console.log(chunk)
                     expect(chunk.errors.length).toEqual(0)
                     expect(chunk[1]).not.toEqual("b")
                     const regex = /^([A-Za-z]{2}[\d]{1,2}[A-Za-z]?)[\s]+([\d][A-Za-z]{2})$/

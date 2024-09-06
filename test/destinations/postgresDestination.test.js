@@ -42,7 +42,7 @@ describe('postgresDestination tests', () => {
         jest.clearAllMocks()
     })
     it('should write a row', (done) => {
-        const uut = PostgresDestination(config)
+        const uut = new PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -55,8 +55,27 @@ describe('postgresDestination tests', () => {
             })
             .pipe(uut)
     })
+    it('should fire result event', (done) => {
+        const uut = new PostgresDestination(config)
+        const testData =["a", "b", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .pipe(uut.on('result', (data) => {
+                expect(data[0]).toEqual('a')
+                expect(data[1]).toEqual('b')
+                expect(data[2]).toEqual('c')
+                expect(data['errors']).toEqual([])
+                expect(data['rowId']).toEqual(1)
+                expect(data['_columns']).toEqual([ 'column1', 'column2', 'column3' ])
+                expect(data['_result']).toEqual([ [], 1 ])
+                done()
+            }))
+    })
     it('should produce debug output', (done) => {
-        const uut = PostgresDestination(config)
+        const uut = new PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
