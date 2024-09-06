@@ -1,3 +1,5 @@
+const EventEmitter = require('node:events')
+const util = require('node:util')
 const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
@@ -16,7 +18,7 @@ const DEFAULT_PORT = 5432
  * @returns Transform
  */
 function PostgresDestination(options){
-    
+    EventEmitter.call(this)
     const table = options.table
     const username = options.username
     const password = options.password
@@ -25,6 +27,7 @@ function PostgresDestination(options){
     const port = options.port || DEFAULT_PORT
     const mapping = options.mapping
     const includeErrors = options.includeErrors
+    let lastChunk
 
     const sequelize = new Sequelize(database, username, password, {
         host: host,
@@ -93,17 +96,23 @@ function PostgresDestination(options){
                     .then(result => {
                         debug('result %o', result)
                         chunk._result = result
+                        lastChunk = chunk
                         // @ts-ignore
                         callback(null, chunk)
                     }).catch(error => {
                         debug('error %o', error)
                         chunk.errors.push(error)
+                        lastChunk = chunk
                         // @ts-ignore
                         callback(null, chunk)
                     })
             } else {
                 debug('Chunk has errors %o', chunk)
             }
+        },
+        final(callback){
+            this.emit('result', lastChunk)
+            callback()
         }
     })
 }
