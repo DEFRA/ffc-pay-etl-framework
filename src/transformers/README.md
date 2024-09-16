@@ -74,3 +74,29 @@ ToUpperCaseTransformer({
 ### Example
 
 src/examples/csv-to-upper-case.js
+
+## StringReplaceTransformer
+
+### Options
+
+| option  | description                             |
+| ------- | --------------------------------------- |
+| column  | source column to be transformed         |
+| find    | search string to be replaced            |
+| replace | value to replace the search string with |
+
+### Usage
+
+```js
+StringReplaceTransformer([
+  {
+    column: "column2",
+    find: "'",
+    replace: "''",
+  },
+]);
+```
+
+### Example
+
+src/examples/csv-find-replace.js
