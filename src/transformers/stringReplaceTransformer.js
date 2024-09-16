@@ -15,6 +15,7 @@ function StringReplaceTransformer(options){
         writableObjectMode: true,
         transform(chunk, _, callback){
             const { _columns } = chunk
+            // @ts-ignore
             self.replacements.forEach(r => {
               const colIndex = _columns.indexOf(r.column)
               chunk[colIndex] = chunk[colIndex].replace(r.find, r.replace)
