@@ -2,8 +2,8 @@ const { expect } = require("@jest/globals")
 const { StringReplaceTransformer } = require("../../src/transformers")
 const { Readable, PassThrough } = require("node:stream")
 
-describe('toUpperCaseTransformer tests', () => {
-    it('should convert a string to upper case', (done) => {
+describe('stringReplaceTransformer tests', () => {
+    it('should replace a search string with a replacement string', (done) => {
         const uut = StringReplaceTransformer([{ 
           column: "column2",
           find: "'",
