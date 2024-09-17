@@ -25,6 +25,35 @@
   "jest": {
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/*.test.js"
+    ],
+    "coverageDirectory": "test-output",
+    "coverageReporters": [
+      "text-summary",
+      "lcov"
+    ],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/test-output/",
+      "<rootDir>/test/"
+    ],
+    "modulePathIgnorePatterns": [
+      "node_modules"
+    ],
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "suiteName": "jest tests",
+          "outputDirectory": "test-output",
+          "outputName": "junit.xml"
+        }
+      ]
     ]
   },
   "devDependencies": {
