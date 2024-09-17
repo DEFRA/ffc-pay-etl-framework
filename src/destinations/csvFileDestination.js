@@ -1,3 +1,5 @@
+const EventEmitter = require('node:events')
+const util = require('node:util')
 const { Writable } = require("node:stream")
 const fs = require("fs")
 
@@ -11,7 +13,8 @@ const fs = require("fs")
  * @returns Writable
  */
 function CSVFileDestination(options){
-    
+    EventEmitter.call(this)
+    let lastChunk
     const fileName = options.fileName
     const headers = options.headers
     const includeErrors = options.includeErrors
@@ -39,10 +42,17 @@ function CSVFileDestination(options){
                     fs.writeFileSync(fileHandle, `${chunk.map(c => `"${c}"`).join(",")}\n`)
                 }
             }
+            lastChunk = chunk
+            callback()
+        },
+        final(callback){
+            this.emit('result', lastChunk)
             callback()
         }
     })
 }
+
+util.inherits(CSVFileDestination, EventEmitter)
 
 module.exports = {
     CSVFileDestination
