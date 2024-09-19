@@ -104,7 +104,7 @@ function PostgresDestination(options){
                         chunk.errors.push(error)
                         lastChunk = chunk
                         // @ts-ignore
-                        callback(null, chunk)
+                        callback(error, chunk)
                     })
             } else {
                 debug('Chunk has errors %o', chunk)
