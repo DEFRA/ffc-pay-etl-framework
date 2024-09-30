@@ -70,10 +70,12 @@ function PostgresDestination(options){
                 debug('Source data is not a number')
                 return 0
             }
-            if(mapping.targetType === "varchar" || mapping.targetType === "char")
+            if(mapping.targetType === "varchar" || mapping.targetType === "char"){
                 return `'${chunk[index]}'`
-            if(mapping.targetType === "date")
+            }
+            if(mapping.targetType === "date"){
                 return `to_date('${chunk[index]}','${mapping.format}')`
+            }
             return chunk[index] ? chunk[index] : 'null'
         })})`
         return statement
