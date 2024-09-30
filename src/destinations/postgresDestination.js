@@ -15,7 +15,7 @@ function getMappingForColumn(mapping, column){
 
 function writeInsertStatement(columnMapping, table, chunk){
     let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
-        let mapping = getMappingForColumn(columnMapping, column)
+        const mapping = getMappingForColumn(columnMapping, column)
         return mapping
             ?
             isKeyWord(mapping.targetColumn)
@@ -26,7 +26,7 @@ function writeInsertStatement(columnMapping, table, chunk){
                 : mapping.column
     })
     .join(",")}) VALUES (${chunk._columns.map((column,index) => {
-        let mapping = getMappingForColumn(columnMapping, column)
+        const mapping = getMappingForColumn(columnMapping, column)
         if(!mapping) debug('Mapping not found for column %s', column)
         if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
             debug('Source data is not a number')
