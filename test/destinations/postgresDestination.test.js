@@ -1,5 +1,8 @@
 const { expect } = require('@jest/globals')
-const { PostgresDestination } = require('../../src/destinations')
+const { 
+    PostgresDestination, writeInsertStatement, isKeyWord, 
+    getMappingForColumn 
+} = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
 
@@ -139,7 +142,7 @@ describe('postgresDestination tests', () => {
         }
     )
     it('should format a date as specified', (done) => {
-        const newConfig = { ...config }
+        const newConfig = JSON.parse(JSON.stringify(config))
         newConfig.mapping[1].targetType = "date"
         newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"
         const uut = new PostgresDestination(newConfig)
@@ -154,5 +157,26 @@ describe('postgresDestination tests', () => {
                 done()
             })
             .pipe(uut)
+    })
+    it('should write a sql statement', () => {
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(config.mapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a','19-06-2024 00:00','c')")
+    })
+    it('should write a sql statement with a date format', () => {
+        const newMapping = [...config.mapping]
+        newMapping[1].targetType = "date"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
     })
 })

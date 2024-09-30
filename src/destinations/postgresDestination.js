@@ -3,6 +3,46 @@ const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
 const DEFAULT_PORT = 5432
+
+function isKeyWord(column) {
+    return ['USER'].includes(column.toUpperCase())
+}
+
+function getMappingForColumn(mapping, column){
+    const [map] = mapping.filter(m => m.column === column)
+    return map
+}
+
+function writeInsertStatement(columnMapping, table, chunk){
+    let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
+        let mapping = getMappingForColumn(columnMapping, column)
+        return mapping
+            ?
+            isKeyWord(mapping.targetColumn)
+                ? `"${mapping.targetColumn}"`
+                : mapping.targetColumn
+            : isKeyWord(column)
+                ? `"${mapping.column}"`
+                : mapping.column
+    })
+    .join(",")}) VALUES (${chunk._columns.map((column,index) => {
+        let mapping = getMappingForColumn(columnMapping, column)
+        if(!mapping) debug('Mapping not found for column %s', column)
+        if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
+            debug('Source data is not a number')
+            return 0
+        }
+        if(mapping.targetType === "varchar" || mapping.targetType === "char"){
+            return `'${chunk[index]}'`
+        }
+        if(mapping.targetType === "date"){
+            return `to_date('${chunk[index]}','${mapping.format}')`
+        }
+        return chunk[index] ? chunk[index] : 'null'
+    })})`
+    return statement
+}
+
 /**
  * 
  * @param {Object} options 
@@ -43,43 +83,7 @@ function PostgresDestination(options){
         debug(e)
         throw e
     }
-
-    function getMappingForColumn(column){
-        const [map] = mapping.filter(m => m.column === column)
-        return map
-    }
-    function isKeyWord(column) {
-        return ['USER'].includes(column.toUpperCase())
-    }
-    function writeInsertStatement(chunk){
-        let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
-            let mapping = getMappingForColumn(column)
-            return mapping
-                ?
-                isKeyWord(mapping.targetColumn)
-                    ? `"${mapping.targetColumn}"`
-                    : mapping.targetColumn
-                : isKeyWord(column)
-                    ? `"${mapping.column}"`
-                    : mapping.column
-        })
-        .join(",")}) VALUES (${chunk._columns.map((column,index) => {
-            let mapping = getMappingForColumn(column)
-            if(!mapping) debug('Mapping not found for column %s', column)
-            if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
-                debug('Source data is not a number')
-                return 0
-            }
-            if(mapping.targetType === "varchar" || mapping.targetType === "char"){
-                return `'${chunk[index]}'`
-            }
-            if(mapping.targetType === "date"){
-                return `to_date('${chunk[index]}','${mapping.format}')`
-            }
-            return chunk[index] ? chunk[index] : 'null'
-        })})`
-        return statement
-    }
+    
     return new Transform({
         objectMode: true,
         emitClose: true,
@@ -92,7 +96,7 @@ function PostgresDestination(options){
             let insertStatement
             // @ts-ignore
             if(chunk.errors.length === 0 | options.includeErrors){
-                insertStatement = writeInsertStatement(chunk)
+                insertStatement = writeInsertStatement(mapping, table, chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
                 this.sequelize.query(insertStatement)
@@ -121,5 +125,8 @@ function PostgresDestination(options){
 }
 
 module.exports = {
-    PostgresDestination
+    PostgresDestination,
+    writeInsertStatement,
+    isKeyWord,
+    getMappingForColumn
 }
