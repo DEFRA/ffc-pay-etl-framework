@@ -1,5 +1,4 @@
 const EventEmitter = require('node:events')
-const util = require('node:util')
 const { Transform } = require('node:stream')
 const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
@@ -73,6 +72,8 @@ function PostgresDestination(options){
             }
             if(mapping.targetType === "varchar" || mapping.targetType === "char")
                 return `'${chunk[index]}'`
+            if(mapping.targetType === "date")
+                return `to_date('${chunk[index]}','${mapping.format}')`
             return chunk[index] ? chunk[index] : 'null'
         })})`
         return statement
@@ -92,6 +93,7 @@ function PostgresDestination(options){
                 insertStatement = writeInsertStatement(chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
+                console.log(this.sequelize)
                 this.sequelize.query(insertStatement)
                     .then(result => {
                         debug('result %o', result)

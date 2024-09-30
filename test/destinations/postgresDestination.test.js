@@ -2,7 +2,19 @@ const { expect } = require('@jest/globals')
 const { PostgresDestination } = require('../../src/destinations')
 const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
-jest.mock('sequelize')
+
+jest.mock('sequelize', () => {
+    const mockQuery = jest.fn().mockResolvedValue(1)
+    return {
+        Sequelize: jest.fn(() =>({
+                authenticate: jest.fn(),
+                query: mockQuery
+            })
+        )
+    }
+})
+
+const mSequelizeContext = new Sequelize()
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -40,6 +52,7 @@ const config = {
 describe('postgresDestination tests', () => {
     afterEach(() => {
         jest.clearAllMocks()
+        jest.resetAllMocks()
     })
     it('should write a row', (done) => {
         const uut = new PostgresDestination(config)
@@ -50,7 +63,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                expect(Sequelize.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
                 done()
             })
             .pipe(uut)
@@ -89,7 +102,7 @@ describe('postgresDestination tests', () => {
             .pipe(uut)
     })
     it('should connect to different port', () => {
-        PostgresDestination({
+        new PostgresDestination({
             username: "postgres",
             password : "abc",
             database: "etl_db",
@@ -114,8 +127,8 @@ describe('postgresDestination tests', () => {
                     targetType: "varchar"
                 },
             ]})
-            expect(Sequelize).toBeCalledTimes(1)
-            expect(Sequelize).toBeCalledWith(
+            expect(mSequelizeContext).toBeCalledTimes(1)
+            expect(mSequelizeContext).toBeCalledWith(
                 "etl_db", 
                 "postgres", 
                 "abc", 
@@ -128,4 +141,21 @@ describe('postgresDestination tests', () => {
             )
         }
     )
+    it('should format a date as specified', (done) => {
+        const newConfig = { ...config }
+        newConfig.mapping[1].targetType = "date"
+        newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const uut = new PostgresDestination(newConfig)
+        const testData =["a", "19-06-2024 00:00", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .on('close', (result) => {
+                expect(mSequelizeContext.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+                done()
+            })
+            .pipe(uut)
+    })
 })
