@@ -1,3 +1,3 @@
-@Library('defra-library@add-tests-to-npm') _
+@Library('defra-library@v-9') _
 
 buildNpm()
