@@ -4,7 +4,7 @@ const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
 
 jest.mock('sequelize', () => {
-    const mockQuery = jest.fn().mockResolvedValue(1)
+    const mockQuery = jest.fn().mockResolvedValue([[], 1])
     return {
         Sequelize: jest.fn(() =>({
                 authenticate: jest.fn(),
@@ -13,8 +13,6 @@ jest.mock('sequelize', () => {
         )
     }
 })
-
-const mSequelizeContext = new Sequelize()
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -50,9 +48,8 @@ const config = {
 }
 
 describe('postgresDestination tests', () => {
-    afterEach(() => {
+    beforeEach(() => {
         jest.clearAllMocks()
-        jest.resetAllMocks()
     })
     it('should write a row', (done) => {
         const uut = new PostgresDestination(config)
@@ -63,7 +60,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(Sequelize.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
                 done()
             })
             .pipe(uut)
@@ -127,8 +124,8 @@ describe('postgresDestination tests', () => {
                     targetType: "varchar"
                 },
             ]})
-            expect(mSequelizeContext).toBeCalledTimes(1)
-            expect(mSequelizeContext).toBeCalledWith(
+            expect(Sequelize).toBeCalledTimes(1)
+            expect(Sequelize).toBeCalledWith(
                 "etl_db", 
                 "postgres", 
                 "abc", 
@@ -153,7 +150,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(mSequelizeContext.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
                 done()
             })
             .pipe(uut)

@@ -93,7 +93,6 @@ function PostgresDestination(options){
                 insertStatement = writeInsertStatement(chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
-                console.log(this.sequelize)
                 this.sequelize.query(insertStatement)
                     .then(result => {
                         debug('result %o', result)
