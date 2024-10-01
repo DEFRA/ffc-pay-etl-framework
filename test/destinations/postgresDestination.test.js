@@ -204,4 +204,16 @@ describe('postgresDestination tests', () => {
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',999,'c')")
     })
+    it('should write a sql statement when a target column type is a number but the value is NaN', () => {
+        const newMapping = [...config.mapping]
+        newMapping[1].targetType = "number"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "a999", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',0,'c')")
+    })
 })
