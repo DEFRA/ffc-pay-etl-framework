@@ -180,7 +180,7 @@ describe('postgresDestination tests', () => {
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
     })
     it('should write a sql statement when a target column is a keyword', () => {
-        const newMapping = [...config.mapping]
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
         newMapping[1].targetColumn = "User"
         newMapping[1].targetType = "date"
         newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
