@@ -192,6 +192,19 @@ describe('postgresDestination tests', () => {
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
         expect(result).toEqual("INSERT INTO MockTable (target_column1,\"User\",target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
     })
+    it('should write a sql statement when a source column is a keyword', () => {
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
+        newMapping[1].column = "User"
+        newMapping[1].targetType = "date"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "User", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+    })
     it('should write a sql statement when a target column type is a number', () => {
         const newMapping = [...config.mapping]
         newMapping[1].targetType = "number"
