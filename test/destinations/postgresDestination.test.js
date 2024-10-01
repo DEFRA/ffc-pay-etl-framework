@@ -1,8 +1,21 @@
 const { expect } = require('@jest/globals')
-const { PostgresDestination } = require('../../src/destinations')
+const { 
+    PostgresDestination, writeInsertStatement, isKeyWord, 
+    getMappingForColumn 
+} = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
-jest.mock('sequelize')
+
+jest.mock('sequelize', () => {
+    const mockQuery = jest.fn().mockResolvedValue([[], 1])
+    return {
+        Sequelize: jest.fn(() =>({
+                authenticate: jest.fn(),
+                query: mockQuery
+            })
+        )
+    }
+})
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -38,7 +51,7 @@ const config = {
 }
 
 describe('postgresDestination tests', () => {
-    afterEach(() => {
+    beforeEach(() => {
         jest.clearAllMocks()
     })
     it('should write a row', (done) => {
@@ -89,7 +102,7 @@ describe('postgresDestination tests', () => {
             .pipe(uut)
     })
     it('should connect to different port', () => {
-        PostgresDestination({
+        new PostgresDestination({
             username: "postgres",
             password : "abc",
             database: "etl_db",
@@ -128,4 +141,93 @@ describe('postgresDestination tests', () => {
             )
         }
     )
+    it('should format a date as specified', (done) => {
+        const newConfig = JSON.parse(JSON.stringify(config))
+        newConfig.mapping[1].targetType = "date"
+        newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const uut = new PostgresDestination(newConfig)
+        const testData =["a", "19-06-2024 00:00", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .on('close', (result) => {
+                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+                done()
+            })
+            .pipe(uut)
+    })
+    it('should write a sql statement', () => {
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(config.mapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a','19-06-2024 00:00','c')")
+    })
+    it('should write a sql statement with a date format', () => {
+        const newMapping = [...config.mapping]
+        newMapping[1].targetType = "date"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+    })
+    it('should write a sql statement when a target column is a keyword', () => {
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
+        newMapping[1].targetColumn = "User"
+        newMapping[1].targetType = "date"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,\"User\",target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+    })
+    it('should write a sql statement when a source column is a keyword and there is no target column', () => {
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
+        newMapping[1].column = "User"
+        newMapping[1].targetType = "date"
+        delete newMapping[1].targetColumn
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "19-06-2024 00:00", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "User", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,\"User\",target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+    })
+    it('should write a sql statement when a target column type is a number', () => {
+        const newMapping = [...config.mapping]
+        newMapping[1].targetType = "number"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", 999, "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',999,'c')")
+    })
+    it('should write a sql statement when a target column type is a number but the value is NaN', () => {
+        const newMapping = [...config.mapping]
+        newMapping[1].targetType = "number"
+        newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "a999", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',0,'c')")
+    })
 })
