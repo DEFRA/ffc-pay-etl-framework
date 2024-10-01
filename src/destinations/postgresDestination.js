@@ -16,7 +16,7 @@ function getMappingForColumn(mapping, column){
 function writeInsertStatement(columnMapping, table, chunk){
     let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
-        return mapping
+        return mapping.targetColumn
             ?
             isKeyWord(mapping.targetColumn)
                 ? `"${mapping.targetColumn}"`
