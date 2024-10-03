@@ -18,7 +18,12 @@ function StringReplaceTransformer(options){
             // @ts-ignore
             self.replacements.forEach(r => {
               const colIndex = _columns.indexOf(r.column)
-              chunk[colIndex] = chunk[colIndex].replace(r.find, r.replace)
+              if(r.all){
+                chunk[colIndex] = chunk[colIndex].replaceAll(r.find, r.replace)
+              }
+              else {
+                chunk[colIndex] = chunk[colIndex].replace(r.find, r.replace)
+              }
             })
             
             callback(null, chunk)
