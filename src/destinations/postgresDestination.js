@@ -60,7 +60,7 @@ function PostgresDestination(options){
     const includeErrors = options.includeErrors
     let lastChunk
 
-    return new Transform({
+    const transform = new Transform({
         objectMode: true,
         emitClose: true,
         construct(callback){
@@ -75,7 +75,7 @@ function PostgresDestination(options){
                 insertStatement = writeInsertStatement(mapping, table, chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
-                this.sequelize.query(insertStatement)
+                this.connection.db.query(insertStatement)
                     .then(result => {
                         debug('result %o', result)
                         chunk._result = result
@@ -96,14 +96,17 @@ function PostgresDestination(options){
         final(callback){
             this.emit('result', lastChunk)
             callback()
-        },
-        setConnection(connection){
-            this.connection = connection
-        },
-        getConnectionName(){
-            return this.getConnectionName
         }
     })
+    Object.assign(transform, {
+        setConnection: function (connection){
+            this.connection = connection
+        }.bind(transform),
+        getConnectionName: function (){
+            return this.getConnectionName
+        }.bind(transform)
+    })
+    return transform;
 }
 
 module.exports = {
