@@ -2,9 +2,11 @@ const { expect } = require('@jest/globals')
 const Connections = require('../../src/database_connections')
 const { Sequelize } = require('sequelize')
 
+const mockAuthenticate = jest.fn().mockResolvedValue(true)
+
 jest.mock('sequelize', () => ({
   Sequelize: jest.fn().mockImplementation(()=>({
-    authenticate: jest.fn().mockResolvedValue(true),
+    authenticate: mockAuthenticate,
     query: jest.fn().mockResolvedValue([[], 1]),
   }))
   })
@@ -45,7 +47,6 @@ describe('postgresConnection tests', () => {
             "port": port
         }
     )
-    //Cannot get the following assertion to work
-    expect(Sequelize().authenticate).toHaveBeenCalled()
+    expect(mockAuthenticate).toHaveBeenCalled()
   })
 })
