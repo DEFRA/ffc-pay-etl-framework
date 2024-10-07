@@ -1,7 +1,6 @@
 const { expect } = require('@jest/globals')
 const { 
-    PostgresDestination, writeInsertStatement, isKeyWord, 
-    getMappingForColumn 
+    PostgresDestination, writeInsertStatement
 } = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
 const { Sequelize } = require('sequelize')
@@ -55,6 +54,7 @@ describe('postgresDestination tests', () => {
         jest.clearAllMocks()
     })
     it('should write a row', (done) => {
+        // This test was working fine until today
         const uut = new PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
@@ -69,6 +69,7 @@ describe('postgresDestination tests', () => {
             .pipe(uut)
     })
     it('should fire result event', (done) => {
+        // This test was working fine until today
         const uut = new PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
@@ -88,6 +89,7 @@ describe('postgresDestination tests', () => {
             }))
     })
     it('should produce debug output', (done) => {
+        // This test was working fine until today
         const uut = new PostgresDestination(config)
         const testData =["a", "b", "c"]
         testData.errors = []
@@ -102,6 +104,7 @@ describe('postgresDestination tests', () => {
             .pipe(uut)
     })
     it('should connect to different port', () => {
+        // This test was working fine until today
         new PostgresDestination({
             username: "postgres",
             password : "abc",
@@ -142,6 +145,7 @@ describe('postgresDestination tests', () => {
         }
     )
     it('should format a date as specified', (done) => {
+        // This test was working fine until today
         const newConfig = JSON.parse(JSON.stringify(config))
         newConfig.mapping[1].targetType = "date"
         newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"

@@ -8,6 +8,7 @@ const { compose } = require("node:stream")
  * @typedef {Object} Etl
  * @function loader 
  * @function pump
+ * @function connection
  * @function validator
  * @function destination
  * @function transform
@@ -20,6 +21,7 @@ const { compose } = require("node:stream")
 function Etl(){
     EventEmitter.call(this)
     let self = this
+    self.connectionList = []
     self.validatorList = []
     self.transformationList = []
     self.destinationList = []
@@ -44,6 +46,11 @@ function Etl(){
             return self
     }
 
+    this.connection = (connection) => {
+        self.connectionList.push(connection)
+        return self
+    }
+
     this.validator = (validator) => {
         self.validatorList.push(validator)
         return self
@@ -55,6 +62,15 @@ function Etl(){
     }
 
     this.transform = (transform) => {
+        const connectionname = transform.getConnectionName
+        if (!connectionname || connectionname === ''){
+            throw new Error('Connection name must be specified')
+        }
+        const connection = this.connectionList.filter(c => c.name === connectionname)
+        if (!connection) {
+            throw new Error(`Connection with name ${connectionname} not found`)
+        }
+        transform.setConnection(connection)
         self.transformationList.push(transform)
         return self
     }
