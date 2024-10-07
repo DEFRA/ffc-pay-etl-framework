@@ -52,4 +52,99 @@ describe('sqlFileDestination tests', () => {
                 done()
             })
     })
+    it('should set the connection', () => {
+        const connectionName = "MyConnection"
+        const mockConnection = {
+            db: {
+                query: jest.fn()
+            },
+            name: connectionName
+        }
+        const uut = SQLFileDestination({
+            fileName: "statements.sql", 
+            mode: SQL_MODE.INSERT_MODE,
+            table: "target_table",
+            mapping: [
+                {
+                    column: "column1",
+                    targetColumn: "target_column1",
+                    targetType: "string"
+                },
+                {
+                    column: "column2",
+                    targetColumn: "target_column2",
+                    targetType: "string"
+                },
+                {
+                    column: "column3",
+                    targetColumn: "target_column3",
+                    targetType: "string"
+                },
+            ]
+        })
+        uut.setConnection(mockConnection)
+        expect(uut.connection.name).toEqual(connectionName)
+    })
+    it('should get the connection name', () => {
+        const connectionName = "MyConnection"
+        const mockConnection = {
+            db: {
+                query: jest.fn()
+            },
+            name: connectionName
+        }
+        const uut = SQLFileDestination({
+            fileName: "statements.sql", 
+            mode: SQL_MODE.INSERT_MODE,
+            table: "target_table",
+            mapping: [
+                {
+                    column: "column1",
+                    targetColumn: "target_column1",
+                    targetType: "string"
+                },
+                {
+                    column: "column2",
+                    targetColumn: "target_column2",
+                    targetType: "string"
+                },
+                {
+                    column: "column3",
+                    targetColumn: "target_column3",
+                    targetType: "string"
+                },
+            ]
+        })
+        uut.setConnection(mockConnection)
+        expect(uut.getConnectionName()).toEqual(connectionName)
+    })
+    it('should set tasks', () => {
+        const mockTasks = [{
+            write: jest.fn()
+        }]
+        const uut = SQLFileDestination({
+            fileName: "statements.sql", 
+            mode: SQL_MODE.INSERT_MODE,
+            table: "target_table",
+            mapping: [
+                {
+                    column: "column1",
+                    targetColumn: "target_column1",
+                    targetType: "string"
+                },
+                {
+                    column: "column2",
+                    targetColumn: "target_column2",
+                    targetType: "string"
+                },
+                {
+                    column: "column3",
+                    targetColumn: "target_column3",
+                    targetType: "string"
+                },
+            ]
+        })
+        uut.setTasks(mockTasks)
+        expect(uut.tasks.length).toEqual(1)
+    })
 })

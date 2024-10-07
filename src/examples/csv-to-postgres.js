@@ -1,4 +1,4 @@
-const { Etl, Loaders, Destinations } = require("ffc-pay-etl-framework")
+const { Etl, Loaders, Destinations, Connections } = require("ffc-pay-etl-framework")
 
 let csvFile = `${process.cwd()}/test/fixtures/SoilType.csv`
 
@@ -14,12 +14,16 @@ const columns = [
 const etl = new Etl.Etl()
 
 etl
-.loader(Loaders.CSVLoader({path: csvFile, columns: columns}))
-.destination(Destinations.PostgresDestination({ 
+.connection(new Connections.PostgresDatabaseConnection({
+    name: 'MyConnection',
     username: "postgres",
     password: "ppp",
+    host: "localhost"
+}))
+.loader(Loaders.CSVLoader({path: csvFile, columns: columns}))
+.destination(Destinations.PostgresDestination({ 
     table: "target",
-    host: "localhost",
+    connection: "MyConnection",
     mapping: [
         {
             column: "Dist Code",

@@ -21,6 +21,7 @@ const { compose } = require("node:stream")
 function Etl(){
     EventEmitter.call(this)
     let self = this
+    self.beforeETLList = []
     self.connectionList = []
     self.validatorList = []
     self.transformationList = []
@@ -32,6 +33,9 @@ function Etl(){
     }
         
     this.pump = () => {
+        this.beforeETLList.forEach(task => {
+            task.write({})
+        })
         this.loader
             .pump(this.loader)
             .pipe(
@@ -46,6 +50,17 @@ function Etl(){
             return self
     }
 
+    this.beforeETL = (pipelineTask) => {
+        const connectionname = pipelineTask.getConnectionName()
+        const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+        if (!connection) {
+            throw new Error(`Connection with name ${connectionname} not found`)
+        }
+        pipelineTask.setConnection(connection)
+        self.beforeETLList.push(pipelineTask)
+        return self
+    }
+
     this.connection = (connection) => {
         self.connectionList.push(connection)
         return self
@@ -56,21 +71,20 @@ function Etl(){
         return self
     }
 
-    this.destination = (destination) => {
+    this.destination = (destination, ...tasks) => {
+        const connectionname = destination.getConnectionName()
+        
+        const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+        if (connection) {
+            destination.setConnection(connection)
+        }
+        
+        tasks && destination.setTasks(tasks)
         self.destinationList.push(destination)
         return self
     }
 
     this.transform = (transform) => {
-        const connectionname = transform.getConnectionName
-        if (!connectionname || connectionname === ''){
-            throw new Error('Connection name must be specified')
-        }
-        const connection = this.connectionList.filter(c => c.name === connectionname)
-        if (!connection) {
-            throw new Error(`Connection with name ${connectionname} not found`)
-        }
-        transform.setConnection(connection)
         self.transformationList.push(transform)
         return self
     }

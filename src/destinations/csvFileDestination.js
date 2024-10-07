@@ -24,7 +24,7 @@ function CSVFileDestination(options){
         fileHandle = fd
     }))
     let headersWritten = false
-    return new Writable({
+    const writable = new Writable({
         objectMode: true,
         write(chunk, _, callback){
             if(!headersWritten && headers) {
@@ -42,6 +42,8 @@ function CSVFileDestination(options){
                     fs.writeFileSync(fileHandle, `${chunk.map(c => `"${c}"`).join(",")}\n`)
                 }
             }
+            // @ts-ignore
+            this.tasks?.forEach(task => task.write(chunk))
             lastChunk = chunk
             callback()
         },
@@ -50,6 +52,20 @@ function CSVFileDestination(options){
             callback()
         }
     })
+
+    Object.assign(writable, {
+        setConnection: function (connection){
+            this.connection = connection
+        }.bind(writable),
+        getConnectionName: function (){
+            return this.connection?.name
+        }.bind(writable),
+        setTasks: function(tasks){
+            this.tasks = tasks
+        }.bind(writable)
+    })
+
+    return writable
 }
 
 util.inherits(CSVFileDestination, EventEmitter)

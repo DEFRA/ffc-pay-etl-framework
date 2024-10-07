@@ -26,7 +26,8 @@
 				"chris-noring.node-snippets",
 				"cweijan.vscode-postgresql-client2",
 				"mechatroner.rainbow-csv",
-				"esbenp.prettier-vscode"
+				"esbenp.prettier-vscode",
+				"sonarsource.sonarlint-vscode"
 			],
 			"settings": {
 				"jest.runMode": {

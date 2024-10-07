@@ -64,4 +64,49 @@ describe('csvFileDestination tests', () => {
       done()
     })
   })
+  it('should add a connection to the connections list', () => {
+    const etl = new Etl.Etl()
+    const connectionName = 'MockConnection'
+    const mockConnection = {
+      db: {
+        query: jest.fn()
+      },
+      name: connectionName
+    }
+    etl.connection(mockConnection)
+    expect(etl.connectionList.length).toEqual(1)
+    expect(etl.connectionList[0].name).toEqual(connectionName)
+  })
+  it('should execute beforeETL task', () => {
+    const etl = new Etl.Etl()
+    const connectionName = 'MockConnection'
+    const mockConnection = {
+      db: {
+        query: jest.fn()
+      },
+      name: connectionName
+    }
+    const mockTask = {
+      setConnection: jest.fn(),
+      getConnectionName: jest.fn().mockReturnValue(connectionName)
+    }
+    etl.connection(mockConnection)
+    etl.beforeETL(mockTask)
+    expect(mockTask.setConnection).toHaveBeenCalled()
+    expect(mockTask.getConnectionName).toHaveBeenCalled()
+  })
+  it('should throw if no connection found for beforeETL task', () => {
+    const etl = new Etl.Etl()
+    const connectionName = 'MockConnection'
+    const mockTask = {
+      setConnection: jest.fn(),
+      getConnectionName: jest.fn().mockReturnValue(connectionName)
+    }
+    try{
+      etl.beforeETL(mockTask)
+    }catch(e){
+      expect(e.message).toEqual('Connection with name MockConnection not found')
+    }
+    
+  })
 })

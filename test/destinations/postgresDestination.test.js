@@ -3,18 +3,7 @@ const {
     PostgresDestination, writeInsertStatement
 } = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
-const { Sequelize } = require('sequelize')
-
-jest.mock('sequelize', () => {
-    const mockQuery = jest.fn().mockResolvedValue([[], 1])
-    return {
-        Sequelize: jest.fn(() =>({
-                authenticate: jest.fn(),
-                query: mockQuery
-            })
-        )
-    }
-})
+const { Sequelize } = require('sequelize').Sequelize
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -49,6 +38,13 @@ const config = {
     ]
 }
 
+const mockConnection = {
+    name: 'Mock Connection',
+    db: {
+        query: jest.fn().mockResolvedValue([[],1])
+    }
+}
+
 describe('postgresDestination tests', () => {
     beforeEach(() => {
         jest.clearAllMocks()
@@ -56,6 +52,7 @@ describe('postgresDestination tests', () => {
     it('should write a row', (done) => {
         // This test was working fine until today
         const uut = new PostgresDestination(config)
+        uut.setConnection(mockConnection)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -63,7 +60,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
                 done()
             })
             .pipe(uut)
@@ -71,6 +68,7 @@ describe('postgresDestination tests', () => {
     it('should fire result event', (done) => {
         // This test was working fine until today
         const uut = new PostgresDestination(config)
+        uut.setConnection(mockConnection)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -91,6 +89,7 @@ describe('postgresDestination tests', () => {
     it('should produce debug output', (done) => {
         // This test was working fine until today
         const uut = new PostgresDestination(config)
+        uut.setConnection(mockConnection)
         const testData =["a", "b", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -98,58 +97,18 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', () => {
-                expect(logSpy).toBeCalledTimes(3)
+                expect(logSpy).toBeCalledTimes(2)
                 done()
             })
             .pipe(uut)
     })
-    it('should connect to different port', () => {
-        // This test was working fine until today
-        new PostgresDestination({
-            username: "postgres",
-            password : "abc",
-            database: "etl_db",
-            host: "postgres",
-            port: 5433,
-            table: "target",
-            includeErrors: false,
-            mapping: [
-                {
-                    column: "column1",
-                    targetColumn: "target_column1",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column2",
-                    targetColumn: "target_column2",
-                    targetType: "varchar"
-                },
-                {
-                    column: "column3",
-                    targetColumn: "target_column3",
-                    targetType: "varchar"
-                },
-            ]})
-            expect(Sequelize).toBeCalledTimes(1)
-            expect(Sequelize).toBeCalledWith(
-                "etl_db", 
-                "postgres", 
-                "abc", 
-                {
-                    "dialect": "postgres", 
-                    "host": "postgres", 
-                    "logging": false, 
-                    "port": 5433
-                }
-            )
-        }
-    )
     it('should format a date as specified', (done) => {
         // This test was working fine until today
         const newConfig = JSON.parse(JSON.stringify(config))
         newConfig.mapping[1].targetType = "date"
         newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"
         const uut = new PostgresDestination(newConfig)
+        uut.setConnection(mockConnection)
         const testData =["a", "19-06-2024 00:00", "c"]
         testData.errors = []
         testData.rowId = 1
@@ -157,7 +116,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(Sequelize().query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
                 done()
             })
             .pipe(uut)
@@ -172,7 +131,7 @@ describe('postgresDestination tests', () => {
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a','19-06-2024 00:00','c')")
     })
     it('should write a sql statement with a date format', () => {
-        const newMapping = [...config.mapping]
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
         newMapping[1].targetType = "date"
         newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
         const mockTable = "MockTable"
@@ -211,7 +170,7 @@ describe('postgresDestination tests', () => {
         expect(result).toEqual("INSERT INTO MockTable (target_column1,\"User\",target_column3) VALUES ('a',to_date('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')")
     })
     it('should write a sql statement when a target column type is a number', () => {
-        const newMapping = [...config.mapping]
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
         newMapping[1].targetType = "number"
         newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
         const mockTable = "MockTable"
@@ -223,7 +182,7 @@ describe('postgresDestination tests', () => {
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',999,'c')")
     })
     it('should write a sql statement when a target column type is a number but the value is NaN', () => {
-        const newMapping = [...config.mapping]
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
         newMapping[1].targetType = "number"
         newMapping[1].format = "DD-MM-YYYY HH24:MI:SS"
         const mockTable = "MockTable"
@@ -233,5 +192,33 @@ describe('postgresDestination tests', () => {
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',0,'c')")
+    })
+    it('should fire off any addtional tasks', (done) => {
+        const mockTasks = [{
+            write: jest.fn()
+        }]
+        const uut = new PostgresDestination(config)
+        uut.setConnection(mockConnection)
+        uut.setTasks(mockTasks)
+        expect(uut.tasks.length).toEqual(1)
+        const testData =["a", "b", "c"]
+
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .on('close', (result) => {
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                expect(mockTasks[0].write).toHaveBeenCalled()
+                expect(mockTasks[0].write).toBeCalledWith(testData)
+                done()
+            })
+            .pipe(uut)      
+    })
+    it('should get connection name', () => {
+        const uut = new PostgresDestination(config)
+        uut.setConnection(mockConnection)
+        expect(uut.getConnectionName()).toEqual(mockConnection.name)
     })
 })
