@@ -8,6 +8,7 @@ const { compose } = require("node:stream")
  * @typedef {Object} Etl
  * @function loader 
  * @function pump
+ * @function connection
  * @function validator
  * @function destination
  * @function transform
@@ -20,6 +21,8 @@ const { compose } = require("node:stream")
 function Etl(){
     EventEmitter.call(this)
     let self = this
+    self.beforeETLList = []
+    self.connectionList = []
     self.validatorList = []
     self.transformationList = []
     self.destinationList = []
@@ -30,6 +33,9 @@ function Etl(){
     }
         
     this.pump = () => {
+        this.beforeETLList.forEach(task => {
+            task.write({})
+        })
         this.loader
             .pump(this.loader)
             .pipe(
@@ -44,12 +50,36 @@ function Etl(){
             return self
     }
 
+    this.beforeETL = (pipelineTask) => {
+        const connectionname = pipelineTask.getConnectionName()
+        const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+        if (!connection) {
+            throw new Error(`Connection with name ${connectionname} not found`)
+        }
+        pipelineTask.setConnection(connection)
+        self.beforeETLList.push(pipelineTask)
+        return self
+    }
+
+    this.connection = (connection) => {
+        self.connectionList.push(connection)
+        return self
+    }
+
     this.validator = (validator) => {
         self.validatorList.push(validator)
         return self
     }
 
-    this.destination = (destination) => {
+    this.destination = (destination, ...tasks) => {
+        const connectionname = destination.getConnectionName()
+        
+        const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+        if (connection) {
+            destination.setConnection(connection)
+        }
+        
+        tasks && destination.setTasks(tasks)
         self.destinationList.push(destination)
         return self
     }

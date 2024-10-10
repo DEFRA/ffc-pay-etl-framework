@@ -47,11 +47,7 @@ function writeInsertStatement(columnMapping, table, chunk){
  * 
  * @param {Object} options 
  * @param {Object} options.table
- * @param {Object} options.username
- * @param {Object} options.password
- * @param {Object} options.database
- * @param {Object} options.host
- * @param {Object} options.port
+ * @param {Object} options.connectionname
  * @param {Object} options.mapping
  * @param {Object} options.includeErrors
  * @returns Transform
@@ -59,37 +55,17 @@ function writeInsertStatement(columnMapping, table, chunk){
 function PostgresDestination(options){
     EventEmitter.call(this)
     const table = options.table
-    const username = options.username
-    const password = options.password
-    const database = options.database
-    const host = options.host
-    const port = options.port || DEFAULT_PORT
+    const connectionname = options.connectionname
     const mapping = options.mapping
     const includeErrors = options.includeErrors
     let lastChunk
 
-    const sequelize = new Sequelize(database, username, password, {
-        host: host,
-        port: port,
-        dialect: 'postgres',
-        logging: false
-    })
-
-    try{
-        sequelize.authenticate()
-        debug('sequelize.authenticate succeeded')
-    } catch(e){
-        debug('sequelize.authenticate failed')
-        debug(e)
-        throw e
-    }
-    
-    return new Transform({
+    const transform = new Transform({
         objectMode: true,
         emitClose: true,
         construct(callback){
-                        // @ts-ignore
-            this.sequelize = sequelize
+            // @ts-ignore
+            this.connectionname = connectionname
             callback()
         },
         write(chunk, _, callback){
@@ -99,11 +75,13 @@ function PostgresDestination(options){
                 insertStatement = writeInsertStatement(mapping, table, chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
-                this.sequelize.query(insertStatement)
+                this.connection.db.query(insertStatement)
                     .then(result => {
                         debug('result %o', result)
                         chunk._result = result
                         lastChunk = chunk
+                        // @ts-ignore
+                        this.tasks?.forEach(task => task.write(chunk))
                         // @ts-ignore
                         callback(null, chunk)
                     }).catch(error => {
@@ -122,6 +100,18 @@ function PostgresDestination(options){
             callback()
         }
     })
+    Object.assign(Transform.prototype, {
+        setConnection: function (connection){
+            this.connection = connection
+        }.bind(transform),
+        getConnectionName: function (){
+            return this.connection?.name
+        }.bind(transform),
+        setTasks: function(tasks){
+            this.tasks = tasks
+        }.bind(transform)
+    })
+    return transform;
 }
 
 module.exports = {

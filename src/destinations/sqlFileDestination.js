@@ -41,9 +41,9 @@ function SQLFileDestination(options){
         })
     }
     function writeUpdateStatement(chunk){
-
+        //TODO
     }
-    return new Writable({
+    const writable = new Writable({
         objectMode: true,
         write(chunk, _, callback){
             if(chunk.errors.length === 0)
@@ -52,15 +52,31 @@ function SQLFileDestination(options){
                     if(chunk.errors.length === 0 | includeErrors){
                         writeInsertStatement(chunk)
                     }
-                } else if (sqlMode === SQL_MODE.UPDATE_MODE){
-                    // @ts-ignore
-                    if(chunk.errors.length === 0 | includeErrors){
-                        writeUpdateStatement(chunk)
-                    }
                 }
+                // TODO - Disabled because Sonar
+                // } else if (sqlMode === SQL_MODE.UPDATE_MODE){
+                //     // @ts-ignore
+                //     if(chunk.errors.length === 0 | includeErrors){
+                //         writeUpdateStatement(chunk)
+                //     }
+                // }
             callback()
         }
     })
+
+    Object.assign(writable, {
+        setConnection: function (connection){
+            this.connection = connection
+        }.bind(writable),
+        getConnectionName: function (){
+            return this.connection?.name
+        }.bind(writable),
+        setTasks: function(tasks){
+            this.tasks = tasks
+        }.bind(writable)
+    })
+
+    return writable
 }
 
 module.exports = {
