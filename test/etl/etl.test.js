@@ -1,11 +1,11 @@
-const { expect, it } = require("@jest/globals")
+const { expect } = require("@jest/globals")
 const { Loaders, Destinations } = require("../../src")
 const fs = require("fs")
 const Etl = require("../../src/lib")
 
 jest.mock('fs')
 
-describe('csvFileDestination tests', () => {
+describe('ETL tests', () => {
   afterEach(() => {
       jest.resetAllMocks()
   })
@@ -127,5 +127,47 @@ describe('csvFileDestination tests', () => {
     const mockTransform = {}
     etl.transform(mockTransform)
     expect(etl.transformationList.length).toEqual(1)
+  })
+  it('should add destination to destination list', () => {
+    const etl = new Etl.Etl()
+    const mockDestination = {
+      getConnectionName: jest.fn().mockReturnValue("TestConnection"),
+      setConnection: jest.fn(),
+      setTasks: jest.fn()
+    }
+    const mockTask = {
+      setETL: jest.fn()
+    }
+    etl.connectionList.push(
+      {
+        name: "TestConnection",
+        db: {
+          query: jest.fn()
+        }
+      }
+    )
+    etl.destination(mockDestination,mockTask)
+    expect(mockDestination.getConnectionName).toHaveBeenCalled()
+    expect(mockDestination.setTasks).toHaveBeenCalled()
+    expect(mockDestination.setConnection).toBeCalled()
+    expect(mockTask.setETL).toHaveBeenCalled()
+  })
+  it('should fail to add destination to destination list', () => {
+    const etl = new Etl.Etl()
+    const mockDestination = {
+      getConnectionName: jest.fn().mockReturnValue("TestConnection"),
+      setConnection: jest.fn(),
+      setTasks: jest.fn()
+    }
+    const mockTask = {
+      setETL: jest.fn()
+    }
+    expect((()=> { etl.destination(mockDestination,mockTask) })).toThrow('No connection could be found with name TestConnection')
+  })
+  it('should add validator to validator list', () => {
+    const etl = new Etl.Etl()
+    const mockValidator = {}
+    etl.validator(mockValidator)
+    expect(etl.validatorList.length).toEqual(1)
   })
 })

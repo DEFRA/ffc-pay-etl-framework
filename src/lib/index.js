@@ -75,10 +75,11 @@ function Etl(){
 
     this.destination = (destination, ...tasks) => {
         const connectionname = destination.getConnectionName()
-        
         const connection = this.connectionList.filter(c => c.name === connectionname)[0]
         if (connection) {
             destination.setConnection(connection)
+        } else {
+            throw new Error(`No connection could be found with name ${connectionname}`)
         }
         
         if(tasks){
