@@ -88,12 +88,14 @@ describe('csvFileDestination tests', () => {
     }
     const mockTask = {
       setConnection: jest.fn(),
-      getConnectionName: jest.fn().mockReturnValue(connectionName)
+      getConnectionName: jest.fn().mockReturnValue(connectionName),
+      setETL: jest.fn()
     }
     etl.connection(mockConnection)
     etl.beforeETL(mockTask)
     expect(mockTask.setConnection).toHaveBeenCalled()
     expect(mockTask.getConnectionName).toHaveBeenCalled()
+    expect(mockTask.setETL).toHaveBeenCalled()
   })
   it('should throw if no connection found for beforeETL task', () => {
     const etl = new Etl.Etl()

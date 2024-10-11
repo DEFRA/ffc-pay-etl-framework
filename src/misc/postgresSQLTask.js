@@ -52,6 +52,9 @@ function PostgresSQLTask(options){
     }.bind(passthrough),
     getConnectionName: function (){
         return this.connectionname
+    }.bind(passthrough),
+    setETL: function (etl) {
+      this.etl = etl
     }.bind(passthrough)
   })
   return passthrough

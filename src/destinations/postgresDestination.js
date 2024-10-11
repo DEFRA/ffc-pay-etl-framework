@@ -13,6 +13,14 @@ function getMappingForColumn(mapping, column){
     return map
 }
 
+function hasReturningColumns(mapping){
+    return mapping.filter(m => m.returning === true).length > 0
+}
+
+function getReturningColumns(mapping){
+    return mapping.filter(m => m.returning === true).map(m => m.targetColumn)
+}
+
 function writeInsertStatement(columnMapping, table, chunk){
     let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
@@ -27,7 +35,9 @@ function writeInsertStatement(columnMapping, table, chunk){
     })
     .join(",")}) VALUES (${chunk._columns.map((column,index) => {
         const mapping = getMappingForColumn(columnMapping, column)
-        if(!mapping) debug('Mapping not found for column %s', column)
+        if(!mapping) {
+            debug('Mapping not found for column %s', column)
+        }
         if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
             debug('Source data is not a number')
             return 0
@@ -40,6 +50,9 @@ function writeInsertStatement(columnMapping, table, chunk){
         }
         return chunk[index] ? chunk[index] : 'null'
     })})`
+    if(hasReturningColumns(columnMapping)){
+        statement = statement + ` RETURNING ${getReturningColumns(columnMapping).join(',')}`
+    }
     return statement
 }
 
@@ -71,7 +84,7 @@ function PostgresDestination(options){
         write(chunk, _, callback){
             let insertStatement
             // @ts-ignore
-            if(chunk.errors.length === 0 | options.includeErrors){
+            if(chunk.errors.length === 0 || options.includeErrors){
                 insertStatement = writeInsertStatement(mapping, table, chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
@@ -118,5 +131,7 @@ module.exports = {
     PostgresDestination,
     writeInsertStatement,
     isKeyWord,
-    getMappingForColumn
+    getMappingForColumn,
+    hasReturningColumns,
+    getReturningColumns
 }
