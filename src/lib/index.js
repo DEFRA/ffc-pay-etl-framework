@@ -3,6 +3,7 @@ const EventEmitter = require('node:events')
 const util = require('node:util')
 const { RowMetaData } = require("./rowMetaData")
 const { compose } = require("node:stream")
+const { Destinations } = require('..')
 
 /**
  * @typedef {Object} Etl
@@ -78,7 +79,7 @@ function Etl(){
         const connection = this.connectionList.filter(c => c.name === connectionname)[0]
         if (connection) {
             destination.setConnection(connection)
-        } else {
+        } else if (destination instanceof Destinations.PostgresDestination()) {
             throw new Error(`No connection could be found with name ${connectionname}`)
         }
         

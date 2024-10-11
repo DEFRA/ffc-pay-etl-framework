@@ -167,7 +167,8 @@ describe('ETL tests', () => {
   it('should add validator to validator list', () => {
     const etl = new Etl.Etl()
     const mockValidator = {}
-    etl.validator(mockValidator)
+    const result = etl.validator(mockValidator)
     expect(etl.validatorList.length).toEqual(1)
+    expect(result).toEqual(etl)
   })
 })
