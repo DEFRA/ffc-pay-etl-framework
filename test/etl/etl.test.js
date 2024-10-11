@@ -1,4 +1,4 @@
-const { expect } = require("@jest/globals")
+const { expect, it } = require("@jest/globals")
 const { Loaders, Destinations } = require("../../src")
 const fs = require("fs")
 const Etl = require("../../src/lib")
@@ -89,13 +89,24 @@ describe('csvFileDestination tests', () => {
     const mockTask = {
       setConnection: jest.fn(),
       getConnectionName: jest.fn().mockReturnValue(connectionName),
-      setETL: jest.fn()
+      setETL: jest.fn(),
+      write: jest.fn()
+    }
+    const mockLoader = {
+      pump: jest.fn().mockReturnValue({
+        pipe: jest.fn().mockReturnValue({
+          on: jest.fn()
+        })
+      })
     }
     etl.connection(mockConnection)
     etl.beforeETL(mockTask)
+    etl.loader(mockLoader)
+    etl.pump()
     expect(mockTask.setConnection).toHaveBeenCalled()
     expect(mockTask.getConnectionName).toHaveBeenCalled()
     expect(mockTask.setETL).toHaveBeenCalled()
+    expect(mockTask.write).toHaveBeenCalled()
   })
   it('should throw if no connection found for beforeETL task', () => {
     const etl = new Etl.Etl()
@@ -110,5 +121,11 @@ describe('csvFileDestination tests', () => {
       expect(e.message).toEqual('Connection with name MockConnection not found')
     }
     
+  })
+  it('should add transform to transformation list', () => {
+    const etl = new Etl.Etl()
+    const mockTransform = {}
+    etl.transform(mockTransform)
+    expect(etl.transformationList.length).toEqual(1)
   })
 })

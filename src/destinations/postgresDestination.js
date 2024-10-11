@@ -1,6 +1,5 @@
 const EventEmitter = require('node:events')
 const { Transform } = require('node:stream')
-const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
 const DEFAULT_PORT = 5432
 

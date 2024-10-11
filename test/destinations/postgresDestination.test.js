@@ -4,7 +4,6 @@ const {
     getReturningColumns
 } = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
-const { Sequelize } = require('sequelize').Sequelize
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -12,7 +11,6 @@ jest.mock('fs', () => ({
 }))
 
 const logSpy = jest.spyOn(process.stderr, 'write')
-
 const config = {
     username: "postgres",
     password : "ppp",
@@ -61,6 +59,26 @@ describe('postgresDestination tests', () => {
         readable
             .on('close', (result) => {
                 expect(mockConnection.db.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                done()
+            })
+            .pipe(uut)
+    })
+    it('should fail to write a row', (done) => {
+        const uut = new PostgresDestination(config)
+        uut.setConnection({
+            name: 'Mock Connection',
+            db: {
+                query: jest.fn().mockResolvedValue(Promise.reject())
+            }
+        })
+        
+        const testData =["a", "b", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .on('close', (result) => {
                 done()
             })
             .pipe(uut)
