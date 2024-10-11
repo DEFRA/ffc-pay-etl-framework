@@ -79,7 +79,7 @@ function Etl(){
         const connection = this.connectionList.filter(c => c.name === connectionname)[0]
         if (connection) {
             destination.setConnection(connection)
-        } else if (destination instanceof Destinations.PostgresDestination()) {
+        } else if (destination.type === 'PostgresDestination') {
             throw new Error(`No connection could be found with name ${connectionname}`)
         }
         

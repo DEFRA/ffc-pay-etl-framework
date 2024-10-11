@@ -155,6 +155,7 @@ describe('ETL tests', () => {
   it('should fail to add destination to destination list', () => {
     const etl = new Etl.Etl()
     const mockDestination = {
+      type: 'PostgresDestination',
       getConnectionName: jest.fn().mockReturnValue("TestConnection"),
       setConnection: jest.fn(),
       setTasks: jest.fn()

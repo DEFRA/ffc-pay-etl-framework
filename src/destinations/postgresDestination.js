@@ -113,6 +113,7 @@ function PostgresDestination(options){
         }
     })
     Object.assign(Transform.prototype, {
+        type: 'PostgresDestination',
         setConnection: function (connection){
             this.connection = connection
         }.bind(transform),
