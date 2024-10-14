@@ -4,7 +4,8 @@ const { expect } = require("@jest/globals")
 const mockConnection = {
   db: {
     query: jest.fn()
-  }
+  },
+  name: 'MockConnection'
 }
 
 describe('PostgresSQLTask tests', () => {
@@ -58,5 +59,21 @@ describe('PostgresSQLTask tests', () => {
         done()
       })
       .write(testData)
+  })
+  it('should get the connection name', () => {
+    const sql = "INSERT INTO Foo(bar,baz) VALUES (1,2);"
+    const uut = new PostgresSQLTask({ sql:sql })
+    uut.setConnection(mockConnection)
+    expect(uut.getConnectionName()).toEqual(mockConnection.name)
+  })
+  it('should set the ETL object', () => {
+    const sql = "INSERT INTO Foo(bar,baz) VALUES (1,2);"
+    const uut = new PostgresSQLTask({ sql:sql })
+    expect(uut.etl).toBeFalsy
+    uut.setETL({
+      beforeETLList: []
+    })
+    expect(uut.etl).toBeTruthy
+    expect(Array.isArray(uut.etl.beforeETLList)).toEqual(true)
   })
 })
