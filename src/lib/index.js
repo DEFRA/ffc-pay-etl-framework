@@ -77,11 +77,11 @@ function Etl(){
     this.destination = (destination, ...tasks) => {
         const connectionname = destination.getConnectionName()
         const connection = this.connectionList.filter(c => c.name === connectionname)[0]
-        if (connection) {
-            destination.setConnection(connection)
-        } else if (destination.type === 'PostgresDestination') {
+        if (!connection && destination.type === 'PostgresDestination') {
             throw new Error(`No connection could be found with name ${connectionname}`)
-        }
+        } else {
+            destination.setConnection(connection)
+        } 
         
         if(tasks){
             for(const task of tasks){
