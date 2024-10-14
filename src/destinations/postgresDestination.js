@@ -8,7 +8,7 @@ function isKeyWord(column) {
 }
 
 function getMappingForColumn(mapping, column){
-    if(mapping.length === 0) { return }
+    if(mapping.length === 0) { return {} }
     const [map] = mapping.filter(m => m.column === column)
     return map
 }
