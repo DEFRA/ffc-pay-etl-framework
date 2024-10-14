@@ -40,6 +40,11 @@ function PostgresSQLTask(options){
       }
       else {
         const interpolatedSql = doPlaceHolderValueInterpolations(chunk, this.sql, placeholders)
+        //TODO add more interpolation mechanisms to specify return values
+        // e.g. 'myReturnVal = SELECT MAX ID FROM TABLE;'
+        // and write to etl.store.myReturnVal or
+        // e.g. 'chunk.myReturnVal = SELECT MAX ID FROM TABLE;'
+        // and write to the chunk in say chunk.store.myReturnVal
         this.connection.db.query(interpolatedSql)
       }
       callback(null, chunk)
@@ -51,7 +56,10 @@ function PostgresSQLTask(options){
         this.connection = connection
     }.bind(passthrough),
     getConnectionName: function (){
-        return this.connectionname
+        return this.connection.name
+    }.bind(passthrough),
+    setETL: function (etl) {
+      this.etl = etl
     }.bind(passthrough)
   })
   return passthrough

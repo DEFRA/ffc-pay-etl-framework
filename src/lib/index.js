@@ -3,6 +3,7 @@ const EventEmitter = require('node:events')
 const util = require('node:util')
 const { RowMetaData } = require("./rowMetaData")
 const { compose } = require("node:stream")
+const { Destinations } = require('..')
 
 /**
  * @typedef {Object} Etl
@@ -20,7 +21,8 @@ const { compose } = require("node:stream")
  */
 function Etl(){
     EventEmitter.call(this)
-    let self = this
+    const self = this
+    self.store = []
     self.beforeETLList = []
     self.connectionList = []
     self.validatorList = []
@@ -57,6 +59,7 @@ function Etl(){
             throw new Error(`Connection with name ${connectionname} not found`)
         }
         pipelineTask.setConnection(connection)
+        pipelineTask.setETL(self)
         self.beforeETLList.push(pipelineTask)
         return self
     }
@@ -73,13 +76,19 @@ function Etl(){
 
     this.destination = (destination, ...tasks) => {
         const connectionname = destination.getConnectionName()
-        
         const connection = this.connectionList.filter(c => c.name === connectionname)[0]
-        if (connection) {
+        if (!connection && destination.type === 'PostgresDestination') {
+            throw new Error(`No connection could be found with name ${connectionname}`)
+        } else {
             destination.setConnection(connection)
-        }
+        } 
         
-        tasks && destination.setTasks(tasks)
+        if(tasks){
+            for(const task of tasks){
+                task.setETL(self)
+            }
+            destination.setTasks(tasks)
+        }
         self.destinationList.push(destination)
         return self
     }

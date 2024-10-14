@@ -1,9 +1,9 @@
 const { expect } = require('@jest/globals')
 const { 
-    PostgresDestination, writeInsertStatement
+    PostgresDestination, writeInsertStatement, hasReturningColumns,
+    getReturningColumns, getMappingForColumn
 } = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
-const { Sequelize } = require('sequelize').Sequelize
 
 jest.mock('fs', () => ({
     writeFileSync: jest.fn(),
@@ -11,7 +11,6 @@ jest.mock('fs', () => ({
 }))
 
 const logSpy = jest.spyOn(process.stderr, 'write')
-
 const config = {
     username: "postgres",
     password : "ppp",
@@ -50,7 +49,6 @@ describe('postgresDestination tests', () => {
         jest.clearAllMocks()
     })
     it('should write a row', (done) => {
-        // This test was working fine until today
         const uut = new PostgresDestination(config)
         uut.setConnection(mockConnection)
         const testData =["a", "b", "c"]
@@ -61,6 +59,26 @@ describe('postgresDestination tests', () => {
         readable
             .on('close', (result) => {
                 expect(mockConnection.db.query).toHaveBeenLastCalledWith("INSERT INTO target (target_column1,target_column2,target_column3) VALUES ('a','b','c')")
+                done()
+            })
+            .pipe(uut)
+    })
+    it('should fail to write a row', (done) => {
+        const uut = new PostgresDestination(config)
+        uut.setConnection({
+            name: 'Mock Connection',
+            db: {
+                query: jest.fn().mockResolvedValue(Promise.reject())
+            }
+        })
+        
+        const testData =["a", "b", "c"]
+        testData.errors = []
+        testData.rowId = 1
+        testData._columns = ["column1", "column2", "column3"]
+        const readable = Readable.from([testData])
+        readable
+            .on('close', (result) => {
                 done()
             })
             .pipe(uut)
@@ -103,7 +121,6 @@ describe('postgresDestination tests', () => {
             .pipe(uut)
     })
     it('should format a date as specified', (done) => {
-        // This test was working fine until today
         const newConfig = JSON.parse(JSON.stringify(config))
         newConfig.mapping[1].targetType = "date"
         newConfig.mapping[1].format = "DD-MM-YYYY HH24:MI:SS"
@@ -193,6 +210,17 @@ describe('postgresDestination tests', () => {
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
         expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a',0,'c')")
     })
+    it('should write a sql statement when a target column has the returning flag set', () => {
+        const newMapping = JSON.parse(JSON.stringify(config.mapping))
+        newMapping[1].returning = true
+        const mockTable = "MockTable"
+        const mockChunk = ["a", "a999", "c"]
+        mockChunk.errors = []
+        mockChunk.rowId = 1
+        mockChunk._columns = ["column1", "column2", "column3"]
+        const result = writeInsertStatement(newMapping, mockTable, mockChunk)
+        expect(result).toEqual("INSERT INTO MockTable (target_column1,target_column2,target_column3) VALUES ('a','a999','c') RETURNING target_column2")
+    })
     it('should fire off any addtional tasks', (done) => {
         const mockTasks = [{
             write: jest.fn()
@@ -220,5 +248,19 @@ describe('postgresDestination tests', () => {
         const uut = new PostgresDestination(config)
         uut.setConnection(mockConnection)
         expect(uut.getConnectionName()).toEqual(mockConnection.name)
+    })
+    it('should return true if mapping contains one or more mappings that have the returning flag set', () => {
+        const newConfig = JSON.parse(JSON.stringify(config))
+        newConfig.mapping[0].returning = true
+        expect(hasReturningColumns(newConfig.mapping)).toEqual(true)
+    })
+    it('should return false if mapping does not contain one or more mappings that have the returning flag set', () => {
+        const newConfig = JSON.parse(JSON.stringify(config))
+        expect(hasReturningColumns(newConfig.mapping)).toEqual(false)
+    })
+    it('should return array of mappings that have the returning flag set', () => {
+        const newConfig = JSON.parse(JSON.stringify(config))
+        newConfig.mapping[0].returning = true
+        expect(getReturningColumns(newConfig.mapping)).toEqual(['target_column1'])
     })
 })

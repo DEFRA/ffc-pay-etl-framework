@@ -1,6 +1,5 @@
 const EventEmitter = require('node:events')
 const { Transform } = require('node:stream')
-const { Sequelize } = require('sequelize')
 const debug = require('debug')('destination')
 const DEFAULT_PORT = 5432
 
@@ -9,37 +8,48 @@ function isKeyWord(column) {
 }
 
 function getMappingForColumn(mapping, column){
+    if(mapping.length === 0) { return {} }
     const [map] = mapping.filter(m => m.column === column)
     return map
+}
+
+function hasReturningColumns(mapping){
+    return mapping.filter(m => m.returning === true).length > 0
+}
+
+function getReturningColumns(mapping){
+    return mapping.filter(m => m.returning === true).map(m => m?.targetColumn)
 }
 
 function writeInsertStatement(columnMapping, table, chunk){
     let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
-        return mapping.targetColumn
+        return mapping?.targetColumn
             ?
             isKeyWord(mapping.targetColumn)
                 ? `"${mapping.targetColumn}"`
                 : mapping.targetColumn
             : isKeyWord(column)
-                ? `"${mapping.column}"`
-                : mapping.column
+                ? `"${mapping?.column}"`
+                : mapping?.column
     })
     .join(",")}) VALUES (${chunk._columns.map((column,index) => {
         const mapping = getMappingForColumn(columnMapping, column)
-        if(!mapping) debug('Mapping not found for column %s', column)
-        if (mapping.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
+        if (mapping?.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
             debug('Source data is not a number')
             return 0
         }
-        if(mapping.targetType === "varchar" || mapping.targetType === "char"){
+        if(mapping?.targetType === "varchar" || mapping?.targetType === "char"){
             return `'${chunk[index]}'`
         }
-        if(mapping.targetType === "date"){
-            return `to_date('${chunk[index]}','${mapping.format}')`
+        if(mapping?.targetType === "date"){
+            return `to_date('${chunk[index]}','${mapping?.format}')`
         }
         return chunk[index] ? chunk[index] : 'null'
     })})`
+    if(hasReturningColumns(columnMapping)){
+        statement = statement + ` RETURNING ${getReturningColumns(columnMapping).join(',')}`
+    }
     return statement
 }
 
@@ -71,7 +81,7 @@ function PostgresDestination(options){
         write(chunk, _, callback){
             let insertStatement
             // @ts-ignore
-            if(chunk.errors.length === 0 | options.includeErrors){
+            if(chunk.errors.length === 0 || options.includeErrors){
                 insertStatement = writeInsertStatement(mapping, table, chunk)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
@@ -101,6 +111,7 @@ function PostgresDestination(options){
         }
     })
     Object.assign(Transform.prototype, {
+        type: 'PostgresDestination',
         setConnection: function (connection){
             this.connection = connection
         }.bind(transform),
@@ -118,5 +129,7 @@ module.exports = {
     PostgresDestination,
     writeInsertStatement,
     isKeyWord,
-    getMappingForColumn
+    getMappingForColumn,
+    hasReturningColumns,
+    getReturningColumns
 }
