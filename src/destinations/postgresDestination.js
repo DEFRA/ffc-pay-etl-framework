@@ -35,9 +35,6 @@ function writeInsertStatement(columnMapping, table, chunk){
     })
     .join(",")}) VALUES (${chunk._columns.map((column,index) => {
         const mapping = getMappingForColumn(columnMapping, column)
-        if(!mapping) {
-            debug('Mapping not found for column %s', column)
-        }
         if (mapping?.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
             debug('Source data is not a number')
             return 0

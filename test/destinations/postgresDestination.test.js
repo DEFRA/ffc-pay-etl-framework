@@ -1,7 +1,7 @@
 const { expect } = require('@jest/globals')
 const { 
     PostgresDestination, writeInsertStatement, hasReturningColumns,
-    getReturningColumns
+    getReturningColumns, getMappingForColumn
 } = require('../../src/destinations/postgresDestination')
 const { Readable } = require('node:stream')
 
@@ -262,25 +262,5 @@ describe('postgresDestination tests', () => {
         const newConfig = JSON.parse(JSON.stringify(config))
         newConfig.mapping[0].returning = true
         expect(getReturningColumns(newConfig.mapping)).toEqual(['target_column1'])
-    })
-    it('should write to debug output if mapping not found', () => {
-        try {
-            const newConfig = JSON.parse(JSON.stringify(config))
-            newConfig.mapping = []
-            const uut = new PostgresDestination(newConfig)
-            uut.setConnection(mockConnection)
-            const testData =["a", "b", "c"]
-            testData.errors = []
-            testData.rowId = 1
-            testData._columns = ["column1", "column2", "column3"]
-            const readable = Readable.from([testData])
-                readable
-                    .pipe(uut)
-        } catch(e) {
-            expect(logSpy).toHaveBeenCalledTimes(3)
-            expect(logSpy).toHaveBeenNthCalledWith(1,'Mapping not found for column column1')
-            expect(logSpy).toHaveBeenNthCalledWith(2,'Mapping not found for column column2')
-            expect(logSpy).toHaveBeenNthCalledWith(3,'Mapping not found for column column3')
-        }
     })
 })
