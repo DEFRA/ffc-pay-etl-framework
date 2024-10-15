@@ -21,9 +21,18 @@
     },
     {
       "login": "GodsonLeigh",
-      "name": "GodsonLeigh",
+      "name": "Leigh Godson",
       "avatar_url": "https://avatars.githubusercontent.com/u/139965284?v=4",
       "profile": "https://github.com/GodsonLeigh",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "samplackett",
+      "name": "Sam Plackett",
+      "avatar_url": "https://avatars.githubusercontent.com/u/60177449?v=4",
+      "profile": "https://github.com/samplackett",
       "contributions": [
         "code"
       ]
