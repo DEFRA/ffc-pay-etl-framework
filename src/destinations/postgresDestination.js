@@ -42,8 +42,11 @@ function writeInsertStatement(columnMapping, table, chunk){
         if(mapping?.targetType === "varchar" || mapping?.targetType === "char"){
             return `'${chunk[index]}'`
         }
-        if(mapping?.targetType === "date"){
-            return `to_date('${chunk[index]}','${mapping?.format}')`
+        if (mapping?.targetType === "date") {
+            if (!chunk[index]) {
+                return `''`
+            }
+            return `to_timestamp('${chunk[index]}','${mapping?.format}')`
         }
         return chunk[index] ? chunk[index] : 'null'
     })})`
