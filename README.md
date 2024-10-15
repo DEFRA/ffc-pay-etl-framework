@@ -99,7 +99,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/suityou01"><img src="https://avatars.githubusercontent.com/u/7422644?v=4?s=100" width="100px;" alt="Charlie Benger-Stevenson"/><br /><sub><b>Charlie Benger-Stevenson</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=suityou01" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/GodsonLeigh"><img src="https://avatars.githubusercontent.com/u/139965284?v=4?s=100" width="100px;" alt="Leigh Godson"/><br /><sub><b>Leigh Godson</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=GodsonLeigh" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/samplackett"><img src="https://avatars.githubusercontent.com/u/60177449?v=4?s=100" width="100px;" alt="Sam Plackett"/><br /><sub><b>Leigh Godson</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=samplackett" title="Code">💻</a></td>    </tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/samplackett"><img src="https://avatars.githubusercontent.com/u/60177449?v=4?s=100" width="100px;" alt="Sam Plackett"/><br /><sub><b>Sam Plackett</b></sub></a><br /><a href="https://github.com/DEFRA/ffc-pay-etl-framework/commits?author=samplackett" title="Code">💻</a></td>    </tr>
   </tbody>
   <tfoot>
     <tr>
