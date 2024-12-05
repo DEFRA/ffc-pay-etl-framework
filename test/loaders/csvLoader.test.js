@@ -23,7 +23,7 @@ describe('csvLoader tests', () => {
                 objectMode: true,
                 transform(chunk, _, callback){
                     expect(chunk.join(",")).toEqual(testData[lineCount].replace(/\n/,""))
-                    if(lineCount === testData.length - 2) //Ignore header rows
+                    if(lineCount === testData.length - 1)
                         done()
                     lineCount +=1
                     callback(null, chunk)
