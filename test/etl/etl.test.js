@@ -11,7 +11,6 @@ describe('ETL tests', () => {
   })
   it('should fire finish event', (done) => {
     const testData = [
-      "2\n",
       "column1, column2, column3\n",
       "1,2,3\n",
       "4,5,6\n"
@@ -37,7 +36,6 @@ describe('ETL tests', () => {
   it('should fire result event', (done) => {
     jest.setTimeout(10000)
     const testData = [
-      "2\n",
       "column1, column2, column3\n",
       "1,2,3\n",
       "4,5,6\n"
