@@ -16,7 +16,7 @@ function CSVLoader(options){
     csvLoader._columns = options.columns
     csvLoader.pump = (csvLoader) => {
         return csvLoader
-            .pipe(parse({ delimiter: ",", from_line: 3 }))
+            .pipe(parse({ delimiter: ",", from_line: 2 }))
             .pipe(new Transform({
                 readableObjectMode: true,
                 writableObjectMode: true,

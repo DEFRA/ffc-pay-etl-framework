@@ -8,12 +8,11 @@ jest.mock('fs')
 describe('csvLoader tests', () => {
     it('should load a csv file', (done) => {
         const testData = [
-            "2\n",
             "column1, column2, column3\n",
             "1,2,3\n",
             "4,5,6\n"
         ]
-        let lineCount = 2
+        let lineCount = 1
         const testPath = "someRandomPath"
         fs.__setMockFileContent(testPath, testData)
         const uut = CSVLoader({ path: testPath, columns: ["a","b","c"]})
@@ -33,7 +32,6 @@ describe('csvLoader tests', () => {
     it('should count csv file lines', (done) => {
         jest.setTimeout(10000)
         const testData = [
-            "2\n",
             "column1, column2, column3\n",
             "1,2,3\n",
             "4,5,6\n"
@@ -48,7 +46,7 @@ describe('csvLoader tests', () => {
                 objectMode: true,
                 transform(chunk, _, callback){
                     expect(chunk._linecount).toEqual(lineCount)
-                    if(lineCount === testData.length - 2) //Ignore header row
+                    if(lineCount === testData.length - 1)
                         done()
                     lineCount +=1
                     callback(null, chunk)
