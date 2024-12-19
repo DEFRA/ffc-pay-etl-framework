@@ -2,7 +2,6 @@
 const fs = require("fs")
 const { Transform } = require("stream")
 const { parse } = require("csv-parse")
-const { stdout, stderr } = require("process")
 
 /**
  * 
@@ -24,7 +23,15 @@ function CSVLoader(options){
                 transform(chunk, _, callback){
                     chunk["_columns"] = options.columns
                     chunk["_linecount"] = lineCount
-                    lineCount +=1
+                    lineCount += 1
+
+                    // remove non-printable characters
+                    options.columns.forEach((_column, index) => {
+                        if (chunk[index]) {
+                            chunk[index] = chunk[index].replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+                        }
+                    })
+
                     callback(null, chunk)
                 }
             })
