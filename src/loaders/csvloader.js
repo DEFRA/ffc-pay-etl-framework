@@ -1,3 +1,4 @@
+// @ts-nocheck
 const fs = require("fs")
 const { Transform } = require("stream")
 const { parse } = require("csv-parse")
@@ -20,7 +21,6 @@ function CSVLoader(options){
                 writableObjectMode: true,
                 emitClose: true,
                 transform(chunk, _, callback){
-                    console.log(`Processing chunk: ${JSON.stringify(chunk)}`)
                     chunk["_columns"] = options.columns
                     chunk["_linecount"] = lineCount
                     lineCount += 1
