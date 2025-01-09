@@ -1,0 +1,77 @@
+name: Version Bump
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set up GPG keys for signing
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          git config --global user.signingkey ${{ secrets.GPG_KEY_ID }}
+          git config --global commit.gpgsign true
+          git config --global user.email ${{ secrets.GPG_EMAIL }}
+          git config --global user.name ${{ secrets.GPG_NAME }}
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_EMAIL: ${{ secrets.GPG_EMAIL }}
+          GPG_NAME: ${{ secrets.GPG_NAME }}
+
+      - name: Commit dependency updates with GPG sign
+        run: |
+          git add package-lock.json
+          git commit -S -m "update package-lock.json" || echo "No changes to commit"
+
+      - name: Fetch main branch
+        run: git fetch origin main
+
+      - name: Merge main into feature branch
+        run: |
+          git merge origin/main --no-commit
+        continue-on-error: true
+
+      - name: Check for merge conflicts
+        run: |
+          if [[ $(git ls-files -u | wc -l) -gt 0 ]]; then
+            echo "Merge conflicts detected. Exiting without version bump."
+            exit 0
+          else
+            echo "Merge successful. Proceeding with version bump."
+          fi
+        shell: bash
+
+      - name: Commit merged changes
+        run: |
+          git commit -S -m "merge main into feature branch" || echo "No changes to commit"
+
+      - name: Bump version number
+        run: |
+          npm version patch
+
+      - name: Ensure branch is checked out
+        run: |
+          git checkout ${{ github.head_ref }}
+
+      - name: Push version bump and commit with GPG sign
+        run: |
+          git push --set-upstream origin ${{ github.head_ref }} --force
+          git push --tags
