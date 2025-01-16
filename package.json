@@ -67,7 +67,7 @@
     "supports-color": "^9.4.0"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.4.1",
+    "@faker-js/faker": "^9.4.0",
     "csv": "^6.3.9",
     "mariadb": "^3.3.1",
     "mysql2": "^3.10.3",
