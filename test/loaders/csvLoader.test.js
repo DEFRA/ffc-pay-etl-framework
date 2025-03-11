@@ -88,4 +88,89 @@ describe('csvLoader tests', () => {
                 }
             }))
     }, 10000)
+
+    it('should load from a readable stream', (done) => {
+        const testData = [
+            "column1,column2,column3\n",
+            "1,2,3\n",
+            "4,5,6\n"
+        ].join('')
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+        let lineCount = 0
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    expect(chunk.join(",")).toEqual(testData.split("\n")[lineCount + 1].replace(/\n/, ""))
+                    lineCount += 1
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    })
+
+    it('should count lines from a readable stream', (done) => {
+        const testData = [
+            "column1,column2,column3\n",
+            "1,2,3\n",
+            "4,5,6\n"
+        ].join('')
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+        let lineCount = 1
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    expect(chunk._linecount).toEqual(lineCount)
+                    lineCount += 1
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    })
+
+    it('should remove non-printable characters from CSV data from a stream', (done) => {
+        const testData = [
+            "column1,column2,column3\n",
+            "1,\x00\x1F2,3\n",
+            "4,5,\x7F\x9F6\n"
+        ].join('')
+        const expectedData = [
+            "column1,column2,column3\n",
+            "1,2,3\n",
+            "4,5,6\n"
+        ]
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+        let lineCount = 0
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    const received = chunk.join(",")
+                    const expected = expectedData[lineCount + 1].replace(/\n/, "") 
+                    expect(received).toEqual(expected)
+                    lineCount += 1
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    }, 10000)
 })
