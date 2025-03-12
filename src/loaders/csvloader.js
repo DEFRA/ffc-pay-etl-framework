@@ -6,11 +6,17 @@ const { parse } = require("csv-parse")
 /**
  * 
  * @param {Object} options 
- * @param {String} options.path
+ * @param {String} [options.path]
+ * @param {ReadableStream} [options.stream]
  * @returns StreamReader
  */
-function CSVLoader(options){
-    let csvLoader = fs.createReadStream(options.path)
+function CSVLoader(options) {
+    let csvLoader
+    if (options.path) {
+        csvLoader = fs.createReadStream(options.path)
+    } else {
+        csvLoader = options.stream
+    }
     let lineCount = 1
     csvLoader._columns = options.columns
     csvLoader.pump = (csvLoader) => {
