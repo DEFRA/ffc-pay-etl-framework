@@ -1,5 +1,7 @@
 const { PostgresDatabaseConnection } = require("./postgresDatabaseConnection")
+const { ProvidedConnection } = require("./providedConnection")
 
 module.exports = {
-  PostgresDatabaseConnection
+  PostgresDatabaseConnection,
+  ProvidedConnection
 }
