@@ -19,7 +19,7 @@ function CSVLoader(options) {
         csvLoader = options.stream
     }
     let lineCount = 1
-    let fromLine = options.startingLine ?? 2
+    const fromLine = options.startingLine ?? 2
     csvLoader._columns = options.columns
     csvLoader.pump = (csvLoader) => {
         return csvLoader
