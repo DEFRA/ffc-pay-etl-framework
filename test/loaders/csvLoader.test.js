@@ -173,4 +173,37 @@ describe('csvLoader tests', () => {
                 done()
             })
     }, 10000)
+
+    it('should start processing from the specified starting line', (done) => {
+        const testData = [
+            "2",
+            "column1,column2,column3\n",
+            "1,2,3\n",
+            "4,5,6\n"
+        ].join('')
+        const expectedData = [
+            "1,2,3\n",
+            "4,5,6\n"
+        ]
+        let lineCount = 0
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"], startingLine: 2 })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    const received = chunk.join(",")
+                    const expected = expectedData[lineCount].replace(/\n/, "")
+                    expect(received).toEqual(expected)
+                    lineCount += 1
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    }, 10000)
 })

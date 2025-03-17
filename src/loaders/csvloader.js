@@ -8,6 +8,7 @@ const { parse } = require("csv-parse")
  * @param {Object} options 
  * @param {String} [options.path]
  * @param {ReadableStream} [options.stream]
+ * @param {Number} [options.startingLine]
  * @returns StreamReader
  */
 function CSVLoader(options) {
@@ -18,10 +19,11 @@ function CSVLoader(options) {
         csvLoader = options.stream
     }
     let lineCount = 1
+    const fromLine = options.startingLine ?? 2
     csvLoader._columns = options.columns
     csvLoader.pump = (csvLoader) => {
         return csvLoader
-            .pipe(parse({ delimiter: ",", from_line: 2 }))
+            .pipe(parse({ delimiter: ",", from_line: fromLine }))
             .pipe(new Transform({
                 readableObjectMode: true,
                 writableObjectMode: true,
