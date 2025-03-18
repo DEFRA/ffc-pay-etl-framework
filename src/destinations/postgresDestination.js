@@ -24,14 +24,7 @@ function getReturningColumns(mapping){
 function writeInsertStatement(columnMapping, table, chunk){
     let statement = `INSERT INTO "${table}" (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
-        return mapping?.targetColumn
-            ?
-            isKeyWord(mapping.targetColumn)
-                ? `"${mapping.targetColumn}"`
-                : mapping.targetColumn
-            : isKeyWord(column)
-                ? `"${mapping?.column}"`
-                : mapping?.column
+        return mapping?.targetColumn ? `"${mapping.targetColumn}"` : `"${mapping?.column}"`
     })
     .join(",")}) VALUES (${chunk._columns.map((column,index) => {
         const mapping = getMappingForColumn(columnMapping, column)
