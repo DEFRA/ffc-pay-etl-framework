@@ -22,7 +22,7 @@ function getReturningColumns(mapping){
 }
 
 function writeInsertStatement(columnMapping, table, chunk){
-    let statement = `INSERT INTO ${table} (${chunk._columns.map(column => {
+    let statement = `INSERT INTO "${table}" (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
         return mapping?.targetColumn
             ?
