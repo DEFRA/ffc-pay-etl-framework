@@ -58,7 +58,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" (target_column1,target_column2,target_column3) VALUES ('a','b','c')`)
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" ("target_column1","target_column2","target_column3") VALUES ('a','b','c')`)
                 done()
             })
             .pipe(uut)
@@ -133,7 +133,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" (target_column1,target_column2,target_column3) VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" ("target_column1","target_column2","target_column3") VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
                 done()
             })
             .pipe(uut)
@@ -145,7 +145,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(config.mapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a','19-06-2024 00:00','c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a','19-06-2024 00:00','c')`)
     })
     it('should write a sql statement with a date format', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -157,7 +157,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
     })
     it('should write a sql statement correctly if date but no value', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -169,7 +169,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a','','c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a','','c')`)
     })
     it('should write a sql statement when a target column is a keyword', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -182,7 +182,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,\"User\",target_column3) VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1",\"User\","target_column3") VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
     })
     it('should write a sql statement when a source column is a keyword and there is no target column', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -196,7 +196,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "User", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,\"User\",target_column3) VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1",\"User\","target_column3") VALUES ('a',to_timestamp('19-06-2024 00:00','DD-MM-YYYY HH24:MI:SS'),'c')`)
     })
     it('should write a sql statement when a target column type is a number', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -208,7 +208,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a',999,'c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a',999,'c')`)
     })
     it('should write a sql statement when a target column type is a number but the value is NaN', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -220,7 +220,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a',0,'c')`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a',0,'c')`)
     })
     it('should write a sql statement when a target column has the returning flag set', () => {
         const newMapping = JSON.parse(JSON.stringify(config.mapping))
@@ -231,7 +231,7 @@ describe('postgresDestination tests', () => {
         mockChunk.rowId = 1
         mockChunk._columns = ["column1", "column2", "column3"]
         const result = writeInsertStatement(newMapping, mockTable, mockChunk)
-        expect(result).toEqual(`INSERT INTO "MockTable" (target_column1,target_column2,target_column3) VALUES ('a','a999','c') RETURNING target_column2`)
+        expect(result).toEqual(`INSERT INTO "MockTable" ("target_column1","target_column2","target_column3") VALUES ('a','a999','c') RETURNING target_column2`)
     })
     it('should fire off any addtional tasks', (done) => {
         const mockTasks = [{
@@ -249,7 +249,7 @@ describe('postgresDestination tests', () => {
         const readable = Readable.from([testData])
         readable
             .on('close', (result) => {
-                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" (target_column1,target_column2,target_column3) VALUES ('a','b','c')`)
+                expect(mockConnection.db.query).toHaveBeenLastCalledWith(`INSERT INTO "target" ("target_column1","target_column2","target_column3") VALUES ('a','b','c')`)
                 expect(mockTasks[0].write).toHaveBeenCalled()
                 expect(mockTasks[0].write).toBeCalledWith(testData)
                 done()
