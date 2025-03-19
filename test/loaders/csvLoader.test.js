@@ -206,4 +206,77 @@ describe('csvLoader tests', () => {
                 done()
             })
     }, 10000)
+
+    it('should handle relaxed quote parsing', (done) => {
+        const testData = [
+            'column1,column2,column3\n',
+            '1,"2,3",4\n',
+            '5,"6,7",8\n'
+        ].join('')
+        const expectedData = [
+            '1,2,3,4',
+            '5,6,7,8'
+        ]
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+        let lineCount = 0
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"], relax: true })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    expect(chunk.join(",")).toEqual(expectedData[lineCount])
+                    lineCount += 1
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                expect(lineCount).toBe(2)
+                done()
+            })
+    }, 10000)
+
+    it('should handle empty CSV', (done) => {
+        const testData = ''
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2"] })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    // This should not be called
+                    expect(true).toBe(false)
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    })
+
+    it('should handle CSV with only headers', (done) => {
+        const testData = 'column1,column2,column3\n'
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        uut
+            .pump(uut)
+            .pipe(new PassThrough({
+                objectMode: true,
+                transform(chunk, _, callback) {
+                    // This should not be called
+                    expect(true).toBe(false)
+                    callback(null, chunk)
+                }
+            }))
+            .on('finish', () => {
+                done()
+            })
+    })
 })
