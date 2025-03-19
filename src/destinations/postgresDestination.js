@@ -21,8 +21,8 @@ function getReturningColumns(mapping){
     return mapping.filter(m => m.returning === true).map(m => m?.targetColumn)
 }
 
-function writeInsertStatement(columnMapping, table, chunk){
-    let statement = `INSERT INTO "${table}" (${chunk._columns.map(column => {
+function writeInsertStatement(columnMapping, table, chunk, schema){
+    let statement = `INSERT INTO ${schema ?? 'public'}."${table}" (${chunk._columns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
         return mapping?.targetColumn ? `"${mapping.targetColumn}"` : `"${mapping?.column}"`
     })
@@ -56,6 +56,7 @@ function writeInsertStatement(columnMapping, table, chunk){
  * @param {Object} options.connectionname
  * @param {Object} options.mapping
  * @param {Object} options.includeErrors
+ * @param {String} [options.schema]
  * @returns Transform
  */
 function PostgresDestination(options){
@@ -64,6 +65,7 @@ function PostgresDestination(options){
     const connectionname = options.connectionname
     const mapping = options.mapping
     const includeErrors = options.includeErrors
+    const schema = options.schema
     let lastChunk
 
     const transform = new Transform({
@@ -78,7 +80,7 @@ function PostgresDestination(options){
             let insertStatement
             // @ts-ignore
             if(chunk.errors.length === 0 || options.includeErrors){
-                insertStatement = writeInsertStatement(mapping, table, chunk)
+                insertStatement = writeInsertStatement(mapping, table, chunk, schema)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
                 this.connection.db.query(insertStatement)
