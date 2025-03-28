@@ -74,7 +74,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "csv": "^6.3.9",
-    "mariadb": "^3.3.1",
+    "mariadb": "^3.4.0",
     "mysql2": "^3.10.3",
     "oracledb": "^6.5.1",
     "pg": "^8.12.0",
