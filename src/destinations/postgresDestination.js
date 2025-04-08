@@ -35,7 +35,7 @@ function writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumn
         const index = chunk._columns.indexOf(column)
         const mapping = getMappingForColumn(columnMapping, column)
         if (mapping?.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
-            debug('Source data is not a number')
+            debug('Source data is not a number.')
             return 0
         }
         if(mapping?.targetType === "varchar" || mapping?.targetType === "char"){
