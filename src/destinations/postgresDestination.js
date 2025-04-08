@@ -24,7 +24,7 @@ function getReturningColumns(mapping){
 function writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns = []) {
     const filteredColumns = chunk._columns.filter(column => {
         const mapping = getMappingForColumn(columnMapping, column)
-        return !ignoredColumns.includes(mapping?.column)
+        return !ignoredColumns.includes(mapping?.targetColumn)
     })
     let statement = `INSERT INTO ${schema ?? 'public'}."${table}" (${filteredColumns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
