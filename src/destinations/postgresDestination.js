@@ -21,12 +21,14 @@ function getReturningColumns(mapping){
     return mapping.filter(m => m.returning === true).map(m => m?.targetColumn)
 }
 
-function writeInsertStatement(columnMapping, table, chunk, schema){
-    let statement = `INSERT INTO ${schema ?? 'public'}."${table}" (${chunk._columns.map(column => {
+function writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns = []) {
+    const filteredColumns = chunk._columns.filter(column => !ignoredColumns.includes(column))
+    let statement = `INSERT INTO ${schema ?? 'public'}."${table}" (${filteredColumns.map(column => {
         const mapping = getMappingForColumn(columnMapping, column)
         return mapping?.targetColumn ? `"${mapping.targetColumn}"` : `"${mapping?.column}"`
     })
-    .join(",")}) VALUES (${chunk._columns.map((column,index) => {
+        .join(",")}) VALUES (${filteredColumns.map(column => {
+        const index = chunk._columns.indexOf(column)
         const mapping = getMappingForColumn(columnMapping, column)
         if (mapping?.targetType === "number" && (isNaN(chunk[index]) || chunk[index] === '')) {
             debug('Source data is not a number')
@@ -57,6 +59,7 @@ function writeInsertStatement(columnMapping, table, chunk, schema){
  * @param {Object} options.mapping
  * @param {Object} options.includeErrors
  * @param {String} [options.schema]
+ * @param {Array<String>} [options.ignoredColumns]
  * @returns Transform
  */
 function PostgresDestination(options){
@@ -66,6 +69,7 @@ function PostgresDestination(options){
     const mapping = options.mapping
     const includeErrors = options.includeErrors
     const schema = options.schema
+    const ignoredColumns = options.ignoredColumns ?? []
     let lastChunk
 
     const transform = new Transform({
@@ -80,7 +84,7 @@ function PostgresDestination(options){
             let insertStatement
             // @ts-ignore
             if(chunk.errors.length === 0 || options.includeErrors){
-                insertStatement = writeInsertStatement(mapping, table, chunk, schema)
+                insertStatement = writeInsertStatement(mapping, table, chunk, schema, ignoredColumns)
                 debug('Insert statement: [%s]', insertStatement)
                 // @ts-ignore
                 this.connection.db.query(insertStatement)

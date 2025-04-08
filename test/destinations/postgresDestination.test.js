@@ -285,4 +285,49 @@ describe('postgresDestination tests', () => {
         newConfig.mapping[0].returning = true
         expect(getReturningColumns(newConfig.mapping)).toEqual(['target_column1'])
     })
+
+    describe('writeInsertStatement', () => {
+        const columnMapping = [
+            { column: 'id', targetColumn: 'id', targetType: 'number' },
+            { column: 'name', targetColumn: 'name', targetType: 'varchar' },
+            { column: 'created_at', targetColumn: 'created_at', targetType: 'date', format: 'YYYY-MM-DD' }
+        ]
+        const table = 'test_table'
+        const schema = 'public'
+        const chunk = {
+            _columns: ['id', 'name', 'created_at'],
+            0: 1,
+            1: 'test',
+            2: '2025-04-07'
+        }
+
+        test('should handle no ignoredColumns provided', () => {
+            const statement = writeInsertStatement(columnMapping, table, chunk, schema)
+            expect(statement).toContain('INSERT INTO public."test_table" ("id","name","created_at") VALUES (1,\'test\',to_timestamp(\'2025-04-07\',\'YYYY-MM-DD\'))')
+        })
+
+        test('should handle ignoredColumns provided', () => {
+            const ignoredColumns = ['name']
+            const statement = writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns)
+            expect(statement).toContain('INSERT INTO public."test_table" ("id","created_at") VALUES (1,to_timestamp(\'2025-04-07\',\'YYYY-MM-DD\'))')
+        })
+
+        test('should handle mixed columns', () => {
+            const ignoredColumns = ['id']
+            const statement = writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns)
+            expect(statement).toContain('INSERT INTO public."test_table" ("name","created_at") VALUES (\'test\',to_timestamp(\'2025-04-07\',\'YYYY-MM-DD\'))')
+        })
+
+        test('should handle all columns ignored', () => {
+            const ignoredColumns = ['id', 'name', 'created_at']
+            const statement = writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns)
+            expect(statement).toContain('INSERT INTO public."test_table" () VALUES ()')
+        })
+
+        test('should handle case sensitivity', () => {
+            const ignoredColumns = ['NAME']
+            const statement = writeInsertStatement(columnMapping, table, chunk, schema, ignoredColumns)
+            expect(statement).toContain('INSERT INTO public."test_table" ("id","name","created_at") VALUES (1,\'test\',to_timestamp(\'2025-04-07\',\'YYYY-MM-DD\'))')
+        })
+    })
 })
