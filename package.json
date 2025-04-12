@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "Defra",
   "main": "dist/cjs/index.js",
   "private": false,
@@ -73,7 +73,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
-    "csv": "^6.3.9",
+    "csv": "^6.3.11",
     "mariadb": "^3.3.1",
     "mysql2": "^3.10.3",
     "oracledb": "^6.5.1",
