@@ -79,7 +79,7 @@
     "oracledb": "^6.5.1",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.3",
+    "sequelize": "^6.37.7",
     "tedious": "^18.2.4",
     "typescript": "^4.0.0",
     "validator": "^13.12.0"
