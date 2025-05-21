@@ -38,7 +38,7 @@ function Etl(){
         this.beforeETLList.forEach(task => {
             task.write({})
         })
-        this.loader
+        const pipeline = this.loader
             .pump(this.loader)
             .pipe(
                 compose(
@@ -48,8 +48,10 @@ function Etl(){
                     ...self.destinationList.map(dl => dl.on('result', (data) => self.emit('result', data)))
                 )
                 // @ts-ignore
-            ).on('finish', (data) => self.emit('finish', data))
-            return self
+            )
+        pipeline.on('error', (err) => self.emit('error', err))
+        pipeline.on('finish', (data) => self.emit('finish', data))
+        return self
     }
 
     this.beforeETL = (pipelineTask) => {
