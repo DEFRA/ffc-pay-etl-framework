@@ -33,17 +33,21 @@ function CSVLoader(options) {
                 chunk["_columns"] = options.columns
                 chunk["_linecount"] = lineCount
                 lineCount += 1
-
+    
                 // remove non-printable characters
                 options.columns.forEach((_column, index) => {
                     if (chunk[index]) {
                         chunk[index] = chunk[index].replace(/[\x00-\x1F\x7F-\x9F]/g, '')
                     }
                 })
-
+    
                 callback(null, chunk)
             }
         })
+    
+        parser.on('error', (err) => csvLoader.emit('error', err))
+        transformer.on('error', (err) => csvLoader.emit('error', err))
+    
         return csvLoader
             .pipe(parser)
             .pipe(transformer)

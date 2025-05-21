@@ -279,4 +279,77 @@ describe('csvLoader tests', () => {
                 done()
             })
     })
+
+    it('should emit error if parser fails', (done) => {
+        const testData = [
+            'column1,column2,column3\n',
+            '1,"2,3,4\n'
+        ].join('')
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+    
+        // Handler for uncaught exceptions
+        const uncaughtHandler = (err) => {
+            expect(err).toBeDefined()
+            expect(err.message).toMatch(/Quote Not Closed|Quoted field not terminated|Invalid Closing Quote/)
+            process.off('uncaughtException', uncaughtHandler)
+            done()
+        }
+        process.on('uncaughtException', uncaughtHandler)
+    
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        const stream = uut.pump(uut)
+    
+        let errorHandled = false
+    
+        uut.on('error', (err) => {
+            errorHandled = true
+            expect(err).toBeDefined()
+            expect(err.message).toMatch(/Quote Not Closed|Quoted field not terminated|Invalid Closing Quote/)
+            process.off('uncaughtException', uncaughtHandler)
+            done()
+        })
+    
+        stream.on('end', () => {
+            if (!errorHandled) {
+                process.off('uncaughtException', uncaughtHandler)
+                done(new Error('Expected error was not emitted'))
+            }
+        })
+    
+        stream.pipe(new PassThrough({
+            objectMode: true,
+            transform(chunk, _, callback) {
+                callback(null, chunk)
+            }
+        }))
+    })
+
+       it('should emit error if transformer throws', (done) => {
+        const testData = [
+            "column1,column2,column3\n",
+            "1,2,3\n"
+        ].join('')
+        const readableStream = new PassThrough()
+        readableStream.end(testData)
+    
+        const uut = CSVLoader({ stream: readableStream, columns: ["column1", "column2", "column3"] })
+        const stream = uut.pump(uut)
+    
+        const errorHandler = (err) => {
+            expect(err).toBeDefined()
+            expect(err.message).toMatch(/Transformer error/)
+            done()
+        }
+    
+        const erroringStream = new PassThrough({
+            objectMode: true,
+            transform(chunk, _, callback) {
+                callback(new Error('Transformer error'))
+            }
+        })
+        erroringStream.on('error', errorHandler)
+    
+        stream.pipe(erroringStream)
+    })
 })
