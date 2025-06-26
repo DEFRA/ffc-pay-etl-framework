@@ -2,37 +2,39 @@ const { expect } = require("@jest/globals")
 const { Loaders, Destinations } = require("../../src")
 const fs = require("fs")
 const Etl = require("../../src/lib")
+const { Transform } = require("stream")
 
 jest.mock('fs')
 
 describe('ETL tests', () => {
   afterEach(() => {
-      jest.resetAllMocks()
+    jest.resetAllMocks()
   })
+
   it('should fire finish event', (done) => {
     const testData = [
       "column1, column2, column3\n",
       "1,2,3\n",
       "4,5,6\n"
     ]
-    
     const testPath = "someRandomPath"
     fs.__setMockFileContent(testPath, testData)
     const etl = new Etl.Etl()
 
     etl
-    .loader(new Loaders.CSVLoader({path: testPath, columns: ["column1","column2","column3"]}))
-    .destination(new Destinations.CSVFileDestination({ 
-        fileName: "SoilType_Output.csv", 
-        headers: true, 
-        includeErrors: false, 
+      .loader(new Loaders.CSVLoader({ path: testPath, columns: ["column1", "column2", "column3"] }))
+      .destination(new Destinations.CSVFileDestination({
+        fileName: "SoilType_Output.csv",
+        headers: true,
+        includeErrors: false,
         quotationMarks: true
-    }))
-    .pump()
-    .on('finish', (data) => {
-      done()
-    })
+      }))
+      .pump()
+      .on('finish', () => {
+        done()
+      })
   })
+
   it('should fire result event', (done) => {
     jest.setTimeout(10000)
     const testData = [
@@ -40,31 +42,31 @@ describe('ETL tests', () => {
       "1,2,3\n",
       "4,5,6\n"
     ]
-    
     const testPath = "someRandomPath"
     fs.__setMockFileContent(testPath, testData)
     const etl = new Etl.Etl()
 
     etl
-    .loader(new Loaders.CSVLoader({path: testPath, columns: ["column1","column2","column3"]}))
-    .destination(new Destinations.CSVFileDestination({ 
-        fileName: "SoilType_Output.csv", 
-        headers: true, 
-        includeErrors: false, 
+      .loader(new Loaders.CSVLoader({ path: testPath, columns: ["column1", "column2", "column3"] }))
+      .destination(new Destinations.CSVFileDestination({
+        fileName: "SoilType_Output.csv",
+        headers: true,
+        includeErrors: false,
         quotationMarks: true
-    }))
-    .pump()
-    .on('result', (data) => {
-      expect(data[0]).toEqual("4")
-      expect(data[1]).toEqual("5")
-      expect(data[2]).toEqual("6")
-      expect(data['_columns']).toEqual([ 'column1', 'column2', 'column3' ])
-      expect(data['_linecount']).toEqual(2)
-      expect(data['_rowId']).toEqual(1)
-      expect(data['errors']).toEqual([])
-      done()
-    })
+      }))
+      .pump()
+      .on('result', (data) => {
+        expect(data[0]).toEqual("4")
+        expect(data[1]).toEqual("5")
+        expect(data[2]).toEqual("6")
+        expect(data['_columns']).toEqual(['column1', 'column2', 'column3'])
+        expect(data['_linecount']).toEqual(2)
+        expect(data['_rowId']).toEqual(1)
+        expect(data['errors']).toEqual([])
+        done()
+      })
   })
+
   it('should add a connection to the connections list', () => {
     const etl = new Etl.Etl()
     const connectionName = 'MockConnection'
@@ -78,6 +80,7 @@ describe('ETL tests', () => {
     expect(etl.connectionList.length).toEqual(1)
     expect(etl.connectionList[0].name).toEqual(connectionName)
   })
+
   it('should execute beforeETL task', () => {
     const etl = new Etl.Etl()
     const connectionName = 'MockConnection'
@@ -93,13 +96,11 @@ describe('ETL tests', () => {
       setETL: jest.fn(),
       write: jest.fn()
     }
-    const mockLoader = {
-      pump: jest.fn().mockReturnValue({
-        pipe: jest.fn().mockReturnValue({
-          on: jest.fn()
-        })
-      })
-    }
+    const mockOn = jest.fn().mockReturnThis()
+    const mockPipe = jest.fn().mockReturnValue({ on: mockOn })
+    const mockPump = jest.fn().mockReturnValue({ pipe: mockPipe })
+    const mockLoader = { pump: mockPump }
+
     etl.connection(mockConnection)
     etl.beforeETL(mockTask)
     etl.loader(mockLoader)
@@ -109,6 +110,7 @@ describe('ETL tests', () => {
     expect(mockTask.setETL).toHaveBeenCalled()
     expect(mockTask.write).toHaveBeenCalled()
   })
+
   it('should throw if no connection found for beforeETL task', () => {
     const etl = new Etl.Etl()
     const connectionName = 'MockConnection'
@@ -116,19 +118,16 @@ describe('ETL tests', () => {
       setConnection: jest.fn(),
       getConnectionName: jest.fn().mockReturnValue(connectionName)
     }
-    try{
-      etl.beforeETL(mockTask)
-    }catch(e){
-      expect(e.message).toEqual('Connection with name MockConnection not found')
-    }
-    
+    expect(() => { etl.beforeETL(mockTask) }).toThrow('Connection with name MockConnection not found')
   })
+
   it('should add transform to transformation list', () => {
     const etl = new Etl.Etl()
     const mockTransform = {}
     etl.transform(mockTransform)
     expect(etl.transformationList.length).toEqual(1)
   })
+
   it('should add destination to destination list', () => {
     const etl = new Etl.Etl()
     const mockDestination = {
@@ -139,20 +138,19 @@ describe('ETL tests', () => {
     const mockTask = {
       setETL: jest.fn()
     }
-    etl.connectionList.push(
-      {
-        name: "TestConnection",
-        db: {
-          query: jest.fn()
-        }
+    etl.connectionList.push({
+      name: "TestConnection",
+      db: {
+        query: jest.fn()
       }
-    )
-    etl.destination(mockDestination,mockTask)
+    })
+    etl.destination(mockDestination, mockTask)
     expect(mockDestination.getConnectionName).toHaveBeenCalled()
     expect(mockDestination.setTasks).toHaveBeenCalled()
     expect(mockDestination.setConnection).toBeCalled()
     expect(mockTask.setETL).toHaveBeenCalled()
   })
+
   it('should fail to add destination to destination list', () => {
     const etl = new Etl.Etl()
     const mockDestination = {
@@ -164,13 +162,47 @@ describe('ETL tests', () => {
     const mockTask = {
       setETL: jest.fn()
     }
-    expect((()=> { etl.destination(mockDestination,mockTask) })).toThrow('No connection could be found with name TestConnection')
+    expect(() => { etl.destination(mockDestination, mockTask) }).toThrow('No connection could be found with name TestConnection')
   })
+
   it('should add validator to validator list', () => {
     const etl = new Etl.Etl()
     const mockValidator = {}
     const result = etl.validator(mockValidator)
     expect(etl.validatorList.length).toEqual(1)
     expect(result).toEqual(etl)
+  })
+
+  it('should emit error event if destination fails', (done) => {
+    const etl = new Etl.Etl()
+    const errorMessage = 'Database error!'
+    fs.__setMockFileContent('irrelevant', ["a\n", "1\n"])
+    class ErrorDestination extends Transform {
+      constructor() {
+        super({ objectMode: true })
+        this.getConnectionName = jest.fn().mockReturnValue("TestConnection")
+        this.setConnection = jest.fn()
+        this.setTasks = jest.fn()
+        this.type = 'PostgresDestination'
+      }
+      _transform(chunk, encoding, callback) {
+        callback(new Error(errorMessage))
+      }
+    }
+
+    etl.connectionList.push({
+      name: "TestConnection",
+      db: { query: jest.fn() }
+    })
+
+    etl
+      .destination(new ErrorDestination())
+      .loader(new Loaders.CSVLoader({ path: 'irrelevant', columns: ['a'] }))
+      .pump()
+      .on('error', (err) => {
+        expect(err).toBeInstanceOf(Error)
+        expect(err.message).toBe(errorMessage)
+        done()
+      })
   })
 })
