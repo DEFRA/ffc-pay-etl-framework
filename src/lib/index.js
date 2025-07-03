@@ -49,7 +49,6 @@ function Etl(){
                 )
                 // @ts-ignore
             )
-            .on('finish', (data) => self.emit('finish', data))
             .on('error', (err) => self.emit('error', err))
             return self
     }

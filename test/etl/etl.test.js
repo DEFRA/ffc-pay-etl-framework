@@ -11,30 +11,6 @@ describe('ETL tests', () => {
     jest.resetAllMocks()
   })
 
-  it('should fire finish event', (done) => {
-    const testData = [
-      "column1, column2, column3\n",
-      "1,2,3\n",
-      "4,5,6\n"
-    ]
-    const testPath = "someRandomPath"
-    fs.__setMockFileContent(testPath, testData)
-    const etl = new Etl.Etl()
-
-    etl
-      .loader(new Loaders.CSVLoader({ path: testPath, columns: ["column1", "column2", "column3"] }))
-      .destination(new Destinations.CSVFileDestination({
-        fileName: "SoilType_Output.csv",
-        headers: true,
-        includeErrors: false,
-        quotationMarks: true
-      }))
-      .pump()
-      .on('finish', () => {
-        done()
-      })
-  })
-
   it('should fire result event', (done) => {
     jest.setTimeout(10000)
     const testData = [
