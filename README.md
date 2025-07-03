@@ -66,12 +66,13 @@ etl
     })
   )
   .pump()
-  .on("finish", () => {
-    //Update spinner
-    spinner.succeed("ETL Pipeline - succeeded");
+  .on("error", () => {
+    // Log simple error message
+    console.error('ETL Error:', error.message)
   })
   .on("result", (data) => {
     console.log(data); // emits the last row with error information
+    spinner.succeed("ETL Pipeline - succeeded");
   });
 ```
 
