@@ -48,7 +48,8 @@ function Etl(){
                     ...self.destinationList.map(dl => dl.on('result', (data) => self.emit('result', data)))
                 )
                 // @ts-ignore
-            ).on('finish', (data) => self.emit('finish', data))
+            )
+            .on('error', (err) => self.emit('error', err))
             return self
     }
 
