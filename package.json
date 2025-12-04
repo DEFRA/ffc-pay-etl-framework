@@ -11,8 +11,6 @@
     "test:lint:fix": "eslint --fix",
     "dev": "nodemon src/index.js",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "prepack": "npm run build",
     "example": "node ./src/examples/sql-return-values.js"
   },
   "keywords": [
