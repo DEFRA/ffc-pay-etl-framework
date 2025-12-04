@@ -12,8 +12,6 @@
     "dev": "nodemon src/index.js",
     "clean": "rm -rf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p ./tsconfig.esm.json && mv dist/esm/index.js dist/esm/index.mjs",
-    "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "prepack": "npm run build",
     "example": "node ./src/examples/sql-return-values.js"
   },
