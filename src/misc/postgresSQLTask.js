@@ -1,9 +1,9 @@
 // @ts-nocheck
-const { PassThrough } = require("stream")
+const { PassThrough } = require('stream')
 const startPosOffset = 3
 const endPosOffset = 1
 
-function getPlaceHolders(sql){
+function getPlaceHolders (sql) {
   const columnNamePlaceholderRegex = /(?<=\$\{)(.*?)(?=})/g
   const matches = Array.from(sql.matchAll(columnNamePlaceholderRegex))
   return matches.map(match => ({
@@ -15,32 +15,31 @@ function getPlaceHolders(sql){
   }))
 }
 
-function doPlaceHolderValueInterpolations(chunk, sql, placeholders){
+function doPlaceHolderValueInterpolations (chunk, sql, placeholders) {
   placeholders.forEach(placeholder => {
     sql = sql.replace(new RegExp(`\\$\{${placeholder.match}}`),
-    chunk[chunk[`_${placeholder.collection}`].indexOf(placeholder.value)])
+      chunk[chunk[`_${placeholder.collection}`].indexOf(placeholder.value)])
   })
   return sql
 }
 
-function PostgresSQLTask(options){
+function PostgresSQLTask (options) {
   const passthrough = new PassThrough({
     readableObjectMode: true,
     writableObjectMode: true,
     decodeStrings: false,
-    construct(callback){
-        this.sql = options.sql
-        this.connectionname = options.connectionname
-        callback()
+    construct (callback) {
+      this.sql = options.sql
+      this.connectionname = options.connectionname
+      callback()
     },
-    transform(chunk, _, callback){
+    transform (chunk, _, callback) {
       const placeholders = getPlaceHolders(this.sql)
-      if(placeholders.length === 0){
+      if (placeholders.length === 0) {
         this.connection.db.query(this.sql)
-      }
-      else {
+      } else {
         const interpolatedSql = doPlaceHolderValueInterpolations(chunk, this.sql, placeholders)
-        //TODO add more interpolation mechanisms to specify return values
+        // TODO add more interpolation mechanisms to specify return values
         // e.g. 'myReturnVal = SELECT MAX ID FROM TABLE;'
         // and write to etl.store.myReturnVal or
         // e.g. 'chunk.myReturnVal = SELECT MAX ID FROM TABLE;'
@@ -52,11 +51,11 @@ function PostgresSQLTask(options){
   })
   // Should definately split this out into a mixin
   Object.assign(passthrough, {
-    setConnection: function (connection){
-        this.connection = connection
+    setConnection: function (connection) {
+      this.connection = connection
     }.bind(passthrough),
-    getConnectionName: function (){
-        return this.connection.name
+    getConnectionName: function () {
+      return this.connection.name
     }.bind(passthrough),
     setETL: function (etl) {
       this.etl = etl
