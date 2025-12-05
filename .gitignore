@@ -2,7 +2,6 @@
 .config/
 .DS_Store
 .npm/
-dist
 .standard-v12-cache/
 .vscode
 .env

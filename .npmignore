@@ -1,0 +1,17 @@
+__mocks__/
+.devcontainer/
+.github/
+jest/
+test/
+.allcontributorsrc
+.dockerignore
+.gitignore
+.snyk
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+eslint.config.js
+ISSUE_TEMPLATE.md
+Jenkinsfile
+LICENSE.md
+PULL_REQUEST_TEMPLATE.md
+sonar-project.properties
