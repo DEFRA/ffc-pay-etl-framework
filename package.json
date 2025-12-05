@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "publisher": "Defra",
   "main": "index.js",
   "private": false,
