@@ -1,6 +1,7 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "1.4.2",
+  "version": "1.4.3",
+  "description": "A framework for creating ETL pipelines in node",
   "publisher": "Defra",
   "main": "index.js",
   "private": false,
@@ -24,7 +25,6 @@
   ],
   "license": "OGL-UK-3.0",
   "repository": "https://github.com/DEFRA/ffc-pay-etl-framework",
-  "description": "A framework for creating ETL pipelines in node",
   "jest": {
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
@@ -73,18 +73,5 @@
     "csv-parse": "6.1.0",
     "sequelize": "6.37.3",
     "validator": "13.15.23"
-  },
-  "files": [
-    "/dist/**/*"
-  ],
-  "exports": {
-    ".": {
-      "import": {
-        "default": "./dist/esm/index.js"
-      },
-      "require": {
-        "default": "./dist/cjs/index.js"
-      }
-    }
   }
 }
