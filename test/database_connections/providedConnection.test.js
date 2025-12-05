@@ -1,4 +1,4 @@
-const { ProvidedConnection } = require('../../src/database_connections')
+const { ProvidedConnection } = require('../../app/database_connections')
 
 describe('ProvidedConnection', () => {
   test('should return a connection object with the correct name and db', async () => {

@@ -2,7 +2,7 @@ const { expect } = require('@jest/globals')
 const {
   PostgresDestination, writeInsertStatement, hasReturningColumns,
   getReturningColumns
-} = require('../../src/destinations/postgresDestination')
+} = require('../../app/destinations/postgresDestination')
 const { Readable } = require('node:stream')
 
 jest.mock('fs', () => ({

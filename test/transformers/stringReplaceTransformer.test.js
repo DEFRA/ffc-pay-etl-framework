@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const { StringReplaceTransformer } = require('../../src/transformers')
+const { StringReplaceTransformer } = require('../../app/transformers')
 const { Readable, PassThrough } = require('node:stream')
 
 describe('stringReplaceTransformer tests', () => {

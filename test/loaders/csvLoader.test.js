@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { PassThrough } = require('stream')
-const { CSVLoader } = require('../../src/loaders/csvloader')
+const { CSVLoader } = require('../../app/loaders/csvloader')
 
 jest.mock('fs')
 

@@ -26,7 +26,7 @@ Validators.RequiredValidator({
 
 ### Example
 
-src/examples/csv-required-validator.js
+examples/csv-required-validator.js
 
 ## UniqueValidator
 
@@ -46,7 +46,7 @@ Validators.UniqueValidator(
 
 ### Example
 
-src/examples/csv-unique-validator.js
+examples/csv-unique-validator.js
 
 ## MultiToolValidator
 
@@ -78,4 +78,4 @@ Validators.MultiToolValidator( { columns: [
 
 ### Example
 
-src/examples/csv-multi-tool-validator.js
+examples/csv-multi-tool-validator.js

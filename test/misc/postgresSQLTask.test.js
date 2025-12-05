@@ -1,4 +1,4 @@
-const { PostgresSQLTask, getPlaceHolders, doPlaceHolderValueInterpolations } = require('../../src/misc/postgresSQLTask.js')
+const { PostgresSQLTask, getPlaceHolders, doPlaceHolderValueInterpolations } = require('../../app/misc/postgresSQLTask.js')
 const { expect } = require('@jest/globals')
 
 const mockConnection = {

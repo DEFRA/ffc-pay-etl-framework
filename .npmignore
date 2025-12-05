@@ -1,0 +1,26 @@
+# Ignore dotfiles explicitly by name
+/.all-contributorsrc
+/.dockerignore
+/.gitignore
+/.snyk
+/CODE_OF_CONDUCT.md
+/CONTRIBUTING.md
+/eslint.config.js
+/ISSUE_TEMPLATE.md
+/Jenkinsfile
+/LICENSE.md
+/PULL_REQUEST_TEMPLATE.md
+/sonar-project.properties
+/snyk_report.html
+/snyk-error.log
+/snyk-monitor-result.json
+/snyk-result.json
+
+# Ignore folders recursively
+__mocks__/
+.devcontainer/
+.github/
+jest/
+test/
+snyk-cli/
+test-output/

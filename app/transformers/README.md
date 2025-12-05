@@ -53,7 +53,7 @@ FakerTransformer({
 
 ### Example
 
-src/examples/csv-faker.js
+examples/csv-faker.js
 
 ## ToUpperCaseTransformer
 
@@ -73,7 +73,7 @@ ToUpperCaseTransformer({
 
 ### Example
 
-src/examples/csv-to-upper-case.js
+examples/csv-to-upper-case.js
 
 ## StringReplaceTransformer
 
@@ -99,4 +99,4 @@ StringReplaceTransformer([
 
 ### Example
 
-src/examples/csv-find-replace.js
+examples/csv-find-replace.js
