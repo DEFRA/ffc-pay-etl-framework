@@ -11,6 +11,10 @@
 /LICENSE.md
 /PULL_REQUEST_TEMPLATE.md
 /sonar-project.properties
+/snyk_report.html
+/snyk-error.log
+/snyk-monitor-result.json
+/snyk-result.json
 
 # Ignore folders recursively
 __mocks__/
@@ -18,3 +22,5 @@ __mocks__/
 .github/
 jest/
 test/
+snyk-cli/
+test-output/
