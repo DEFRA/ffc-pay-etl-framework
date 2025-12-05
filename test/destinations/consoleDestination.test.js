@@ -1,31 +1,31 @@
-const { expect } = require("@jest/globals")
-const { ConsoleDestination } = require("../../src/destinations")
-const { Readable } = require("node:stream")
+const { expect } = require('@jest/globals')
+const { ConsoleDestination } = require('../../src/destinations')
+const { Readable } = require('node:stream')
 
-const spy = jest.spyOn(console,"log")
+const spy = jest.spyOn(console, 'log')
 
 describe('consoleDestination tests', () => {
   afterEach(() => {
-      jest.resetAllMocks()
+    jest.resetAllMocks()
   })
-  it('should write to the console', (done) => {
+  test('should write to the console', (done) => {
     const uut = ConsoleDestination({
-        includeErrors: false
+      includeErrors: false
     })
-    const testData =["a", "b", "c"]
+    const testData = ['a', 'b', 'c']
     testData.errors = []
     testData.rowId = 1
-    testData._columns = ["column1", "column2", "column3"]
+    testData._columns = ['column1', 'column2', 'column3']
     const readable = Readable.from([testData])
     readable
-        .pipe(uut)
-        .on("finish", () => {
-            expect(spy).toHaveBeenCalledWith(testData)
-            done()
-        })
+      .pipe(uut)
+      .on('finish', () => {
+        expect(spy).toHaveBeenCalledWith(testData)
+        done()
+      })
   })
-  it('should set a connection', () => {
-    const connnectionName = "MyConnection"
+  test('should set a connection', () => {
+    const connnectionName = 'MyConnection'
     const mockConnection = {
       db: {
         query: jest.fn()
@@ -39,8 +39,8 @@ describe('consoleDestination tests', () => {
     uut.setConnection(mockConnection)
     expect(uut.connection).toBeTruthy()
   })
-  it('should get the connection name', () => {
-    const connnectionName = "MyConnection"
+  test('should get the connection name', () => {
+    const connnectionName = 'MyConnection'
     const mockConnection = {
       db: {
         query: jest.fn()
@@ -55,26 +55,26 @@ describe('consoleDestination tests', () => {
     expect(uut.connection).toBeTruthy()
     expect(uut.getConnectionName()).toEqual(connnectionName)
   })
-  it('should execute additional tasks', (done) => {
+  test('should execute additional tasks', (done) => {
     const mockTasks = [{
-        write: jest.fn()
+      write: jest.fn()
     }]
     const uut = ConsoleDestination({
-        includeErrors: false
+      includeErrors: false
     })
     uut.setTasks(mockTasks)
     expect(uut.tasks.length).toEqual(1)
-    const testData =["a", "b", "c"]
+    const testData = ['a', 'b', 'c']
     testData.errors = []
     testData.rowId = 1
-    testData._columns = ["column1", "column2", "column3"]
+    testData._columns = ['column1', 'column2', 'column3']
     const readable = Readable.from([testData])
     readable
-        .pipe(uut)
-        .on("finish", () => {
-            expect(mockTasks[0].write).toHaveBeenCalled()
-            expect(mockTasks[0].write).toBeCalledWith(testData)
-            done()
-        })
-})
+      .pipe(uut)
+      .on('finish', () => {
+        expect(mockTasks[0].write).toHaveBeenCalled()
+        expect(mockTasks[0].write).toBeCalledWith(testData)
+        done()
+      })
+  })
 })

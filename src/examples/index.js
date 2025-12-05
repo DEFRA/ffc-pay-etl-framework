@@ -1,46 +1,26 @@
-const { CSVLoader } = require("./loaders")
-const { Etl } = require("./lib")
-const { RequiredValidator, UniqueValidator } = require("./validators")
-const { ConsoleDestination, SQLFileDestination } = require("./destinations")
+const { CSVLoader } = require('./loaders')
+const { Etl } = require('./lib')
+const { RequiredValidator, UniqueValidator } = require('./validators')
+const { ConsoleDestination } = require('./destinations')
 
-let csvFile = `${process.cwd()}/test/fixtures/20240708_SFI23_Extracts_Dax.csv`
+const csvFile = `${process.cwd()}/test/fixtures/20240708_SFI23_Extracts_Dax.csv`
 
 const columns = [
-    "CALCULATIONID",
-    "PAYMENTPERIOD",
-    "PAYMENTREFERENCE",
-    "TOTALQUARTERLYPAYMENT",
-    "TRANSDATE"
+  'CALCULATIONID',
+  'PAYMENTPERIOD',
+  'PAYMENTREFERENCE',
+  'TOTALQUARTERLYPAYMENT',
+  'TRANSDATE'
 ]
 
-let options = {
-    table: "DAX",
-    mode: "INSERT",
-    mappings: [
-        {
-            source: "CALCULATIONID",
-            target: "CALCULATION_ID",
-            type: "Number"
-        },
-        {
-            source: "PAYMENTREFERENCE",
-            target: "PAYMENTREFERENCE",
-            type: "String"
-        }
-    ]
-}
-
-let etl = new Etl()
+const etl = new Etl()
 function run () {
-    etl
+  etl
     .loader(CSVLoader(csvFile, columns))
-    .validator(UniqueValidator({ column: "PAYMENTREFERENCE" }))
-    .validator(RequiredValidator({ columns: [0,1,2,3], message: "Required column cannot be NULL" }))
+    .validator(UniqueValidator({ column: 'PAYMENTREFERENCE' }))
+    .validator(RequiredValidator({ columns: [0, 1, 2, 3], message: 'Required column cannot be NULL' }))
     .destination(ConsoleDestination())
     .pump()
 }
 
 run()
-    
-
-

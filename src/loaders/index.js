@@ -1,5 +1,5 @@
-const { CSVLoader } = require("./csvloader")
+const { CSVLoader } = require('./csvloader')
 
 module.exports = {
-    CSVLoader
+  CSVLoader
 }
