@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const { RequiredValidator } = require('../../src/validators/requiredValidator')
+const { RequiredValidator } = require('../../app/validators/requiredValidator')
 const { Readable, PassThrough } = require('node:stream')
 
 describe('requiredValidator tests', () => {

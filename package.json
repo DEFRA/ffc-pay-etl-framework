@@ -2,16 +2,16 @@
   "name": "ffc-pay-etl-framework",
   "version": "1.4.0",
   "publisher": "Defra",
-  "main": "src/index.js",
+  "main": "index.js",
   "private": false,
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:lint": "eslint",
     "test:lint:fix": "eslint --fix",
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon index.js",
     "clean": "rm -rf ./dist",
-    "example": "node ./src/examples/sql-return-values.js"
+    "example": "node ./examples/sql-return-values.js"
   },
   "keywords": [
     "ETL"

@@ -32,7 +32,7 @@ CSVFileDestination({
 
 ### Example
 
-src/examples/csv-to-csv.js
+examples/csv-to-csv.js
 
 ## PostgresDestination
 
@@ -71,7 +71,7 @@ PostgresDestination({
 
 ### Example
 
-src/examples/csv-to-postgres.js
+examples/csv-to-postgres.js
 
 ## SQLFileDestination
 
@@ -104,4 +104,4 @@ SQLFileDestination({
 
 ### Example
 
-src/examples/csv-to-sqlfile.js
+examples/csv-to-sqlfile.js

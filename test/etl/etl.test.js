@@ -1,7 +1,7 @@
 const { expect } = require('@jest/globals')
-const { Loaders, Destinations } = require('../../src')
+const { Loaders, Destinations } = require('../../index')
 const fs = require('fs')
-const Etl = require('../../src/lib')
+const Etl = require('../../app/lib')
 const { Transform } = require('stream')
 
 jest.mock('fs')

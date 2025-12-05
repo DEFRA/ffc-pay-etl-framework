@@ -1,6 +1,6 @@
 const { expect } = require('@jest/globals')
 const { Readable, PassThrough } = require('node:stream')
-const { MultiToolValidator } = require('../../src/validators')
+const { MultiToolValidator } = require('../../app/validators')
 const validator = require('validator')
 
 jest.mock('validator', () => ({

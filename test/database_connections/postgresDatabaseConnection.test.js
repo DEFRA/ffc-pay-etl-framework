@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const Connections = require('../../src/database_connections')
+const Connections = require('../../app/database_connections')
 const { Sequelize } = require('sequelize')
 
 const mockAuthenticate = jest.fn().mockResolvedValue(true)
