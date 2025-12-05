@@ -1,6 +1,6 @@
 const { expect } = require('@jest/globals')
-const { Loaders } = require('../../app/loaders')
-const { Destinations } = require('../../app/destinations')
+const Loaders = require('../../app/loaders')
+const Destinations = require('../../app/destinations')
 const fs = require('fs')
 const Etl = require('../../app/lib')
 const { Transform } = require('stream')
