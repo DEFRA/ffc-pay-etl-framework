@@ -1,0 +1,45 @@
+# Pipeline name convention
+name: '$(Build.SourceBranchName)$(System.PullRequest.SourceBranch)$(Rev:.r)'
+
+# Trigger configuration
+trigger:
+  - main
+  - feature/*
+  - release/*
+
+pr:
+  - main
+  - releases/*
+
+# Parameters
+parameters:
+  - name: prDeployment
+    type: boolean
+    default: true
+  - name: branchDeployment
+    type: boolean
+    default: true
+  - name: sndDeployment
+    type: boolean
+    default: true
+
+# Resources
+resources:
+  repositories:
+    - repository: templates
+      endpoint: DEFRA
+      type: github
+      name: defra/fcp-pipeline-common
+      # ref: pl-709   # Optional: build specific pipeline branch
+
+# Pipeline template
+extends:
+  template: fcp-common-pipeline.yaml@templates
+  parameters:
+    appFrameworkType: nodejs   # Optional: nodejs (default), dotnet, java
+    Type: npm           # Optional: kubernetes (default), npm, functions, nuget
+    npmLegacyPeerDeps: false   # Optional: default is false
+    prDeployment: ${{ parameters.prDeployment }}
+    branchDeployment: ${{ parameters.branchDeployment }}
+    sndDeployment: ${{ parameters.sndDeployment }}
+    # failOnThreshold: moderate
