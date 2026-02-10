@@ -1,6 +1,6 @@
-const { ToUpperCaseTransformer } = require('./toUpperCaseTransformer')
-const { FakerTransformer } = require('./fakerTransformer')
-const { StringReplaceTransformer } = require('./stringReplaceTransformer')
+const { ToUpperCaseTransformer } = require('./to-upper-case-transformer')
+const { FakerTransformer } = require('./faker-transformer')
+const { StringReplaceTransformer } = require('./string-replace-transformer')
 
 module.exports = {
   StringReplaceTransformer,

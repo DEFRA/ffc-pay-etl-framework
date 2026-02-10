@@ -1,6 +1,6 @@
 const { expect } = require('@jest/globals')
 const { Readable, PassThrough } = require('node:stream')
-const { UniqueValidator } = require('../../app/validators/uniqueValidator')
+const { UniqueValidator } = require('../../app/validators/unique-validator')
 
 describe('uniqueValidator tests', () => {
   test('should not add any errors if all fields are unique', (done) => {

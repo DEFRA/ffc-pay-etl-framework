@@ -1,7 +1,7 @@
 // @ts-nocheck
 const EventEmitter = require('node:events')
 const util = require('node:util')
-const { RowMetaData } = require('./rowMetaData')
+const { RowMetaData } = require('./row-meta-data')
 const { compose } = require('node:stream')
 
 /**

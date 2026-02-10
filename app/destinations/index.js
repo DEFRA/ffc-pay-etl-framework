@@ -1,7 +1,7 @@
-const { ConsoleDestination } = require('./consoleDestination')
-const { SQLFileDestination, SQL_MODE } = require('./sqlFileDestination')
-const { CSVFileDestination } = require('./csvFileDestination')
-const { PostgresDestination } = require('./postgresDestination')
+const { ConsoleDestination } = require('./console-destination')
+const { SQLFileDestination, SQL_MODE } = require('./sql-file-destination')
+const { CSVFileDestination } = require('./csv-file-destination')
+const { PostgresDestination } = require('./postgres-destination')
 
 module.exports = {
   ConsoleDestination,

@@ -21,20 +21,20 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --ignore-scripts
 
       - name: Set up GPG keys for signing
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          git config --global user.signingkey ${{ secrets.GPG_KEY_ID }}
-          git config --global commit.gpgsign true
-          git config --global user.email ${{ secrets.GPG_EMAIL }}
-          git config --global user.name ${{ secrets.GPG_NAME }}
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_EMAIL: ${{ secrets.GPG_EMAIL }}
           GPG_NAME: ${{ secrets.GPG_NAME }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          git config --global user.signingkey "$GPG_KEY_ID"
+          git config --global commit.gpgsign true
+          git config --global user.email "$GPG_EMAIL"
+          git config --global user.name "$GPG_NAME"
 
       - name: Commit dependency updates with GPG sign
         run: |
