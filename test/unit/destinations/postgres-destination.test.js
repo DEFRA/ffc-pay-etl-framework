@@ -3,7 +3,7 @@ process.env.DEBUG = 'destination'
 const {
   PostgresDestination, writeInsertStatement, hasReturningColumns,
   getReturningColumns
-} = require('../../app/destinations/postgres-destination')
+} = require('../../../app/destinations/postgres-destination')
 const { Readable } = require('node:stream')
 
 jest.mock('node:fs', () => ({
