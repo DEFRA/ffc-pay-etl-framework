@@ -37,5 +37,10 @@
   },
   "keywords": [
     "ETL"
-  ]
+  ],
+  "nodemonConfig": {
+    "ignore": [
+      "**/test-output/**"
+    ]
+  }
 }
