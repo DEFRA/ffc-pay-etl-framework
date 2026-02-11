@@ -1,4 +1,5 @@
 const { expect } = require('@jest/globals')
+process.env.DEBUG = 'destination'
 const {
   PostgresDestination, writeInsertStatement, hasReturningColumns,
   getReturningColumns
