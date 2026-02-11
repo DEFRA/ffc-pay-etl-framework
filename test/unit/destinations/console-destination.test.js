@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const { ConsoleDestination } = require('../../app/destinations')
+const { ConsoleDestination } = require('../../../app/destinations')
 const { Readable } = require('node:stream')
 
 const spy = jest.spyOn(console, 'log')

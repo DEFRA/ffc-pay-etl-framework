@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const { ToUpperCaseTransformer } = require('../../app/transformers')
+const { ToUpperCaseTransformer } = require('../../../app/transformers')
 const { Readable, PassThrough } = require('node:stream')
 
 describe('toUpperCaseTransformer tests', () => {

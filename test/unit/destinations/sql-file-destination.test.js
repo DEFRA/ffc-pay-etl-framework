@@ -1,5 +1,5 @@
 const { expect } = require('@jest/globals')
-const { SQLFileDestination, SQL_MODE } = require('../../app/destinations/sql-file-destination')
+const { SQLFileDestination, SQL_MODE } = require('../../../app/destinations/sql-file-destination')
 const { Readable } = require('node:stream')
 const fs = require('node:fs')
 
