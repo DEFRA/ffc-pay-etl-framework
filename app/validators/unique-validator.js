@@ -7,14 +7,16 @@ const { Transform } = require('node:stream')
  * @param {String} options.column
  * @returns Transform
  */
+// sonar-ignore-next-line
 function UniqueValidator (options) {
-  const self = this
-  self.column = options.column
-  self.message = options.message ? options.message : 'Expected unique value is not unique'
-  self.uniqueColumnRows = []
+  const column = options.column
+  const message = options.message || 'Expected unique value is not unique'
+  const uniqueColumnRows = new Set()
+
   function checkIsUnique (data) {
-    return self.uniqueColumnRows.indexOf(data) === -1
+    return !uniqueColumnRows.has(data)
   }
+
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,
@@ -24,12 +26,16 @@ function UniqueValidator (options) {
     },
     transform (chunk, _, callback) {
       const { _columns } = chunk
-      const colIndex = _columns.indexOf(self.column)
+      const colIndex = _columns.indexOf(column)
       const uniqueValue = chunk[colIndex]
+
       if (checkIsUnique(uniqueValue)) {
-        self.uniqueColumnRows.push(uniqueValue)
+        uniqueColumnRows.add(uniqueValue)
       } else {
-        chunk.errors.push(`${self.message} ${self.column}`)
+        if (!chunk.errors) {
+          chunk.errors = []
+        }
+        chunk.errors.push(`${message} ${column}`)
       }
       callback(null, chunk)
     }

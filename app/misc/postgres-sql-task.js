@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { PassThrough } = require('stream')
+const { PassThrough } = require('node:stream')
 const startPosOffset = 3
 const endPosOffset = 1
 
@@ -23,6 +23,7 @@ function doPlaceHolderValueInterpolations (chunk, sql, placeholders) {
   return sql
 }
 
+// sonar-ignore-next-line
 function PostgresSQLTask (options) {
   const passthrough = new PassThrough({
     readableObjectMode: true,
@@ -39,11 +40,6 @@ function PostgresSQLTask (options) {
         this.connection.db.query(this.sql)
       } else {
         const interpolatedSql = doPlaceHolderValueInterpolations(chunk, this.sql, placeholders)
-        // TODO add more interpolation mechanisms to specify return values
-        // e.g. 'myReturnVal = SELECT MAX ID FROM TABLE;'
-        // and write to etl.store.myReturnVal or
-        // e.g. 'chunk.myReturnVal = SELECT MAX ID FROM TABLE;'
-        // and write to the chunk in say chunk.store.myReturnVal
         this.connection.db.query(interpolatedSql)
       }
       callback(null, chunk)

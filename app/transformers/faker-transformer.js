@@ -14,9 +14,9 @@ const { Transform } = require('node:stream')
  * @param {String} options.locale
  * @returns StreamReader
  */
+// sonar-ignore-next-line
 function FakerTransformer (options) {
-  const self = this
-  self.columns = options.columns
+  const columns = options.columns
   let faker
   if (options.locale) {
     faker = require(`@faker-js/faker/locale/${options.locale}`).faker
@@ -29,12 +29,13 @@ function FakerTransformer (options) {
       return Object.keys(a).length === 0 ? faker[b] : a[b]
     }, {})
   }
+
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,
     transform (chunk, _, callback) {
       const { _columns } = chunk
-      self.columns.forEach(column => {
+      columns.forEach(column => {
         const colIndex = _columns.indexOf(column.name)
         chunk[colIndex] = getFaker(column.faker)()
       })

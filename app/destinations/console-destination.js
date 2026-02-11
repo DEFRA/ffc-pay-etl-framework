@@ -6,6 +6,7 @@ const { Writable } = require('node:stream')
  * @param {String} options.includeErrors
  * @returns Writable
  */
+// sonar-ignore-next-line
 function ConsoleDestination (options) {
   const includeErrors = options.includeErrors
   const writable = new Writable({

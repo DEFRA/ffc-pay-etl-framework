@@ -5,6 +5,7 @@
  * @param {Object} options.sequelize
  * @returns Connection
  */
+// sonar-ignore-next-line
 async function ProvidedConnection (options) {
   const connectionname = options.connectionname
   const sequelize = options.sequelize

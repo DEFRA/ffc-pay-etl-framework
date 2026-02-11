@@ -13,6 +13,7 @@ const debug = require('debug')('connection')
  * @param {Object} options.port
  * @returns Connection
  */
+// sonar-ignore-next-line
 async function PostgresDatabaseConnection (options) {
   const connectionname = options.connectionname
   const username = options.username

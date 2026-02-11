@@ -1,8 +1,8 @@
-const fs = require('fs')
-const { PassThrough } = require('stream')
+const fs = require('node:fs')
+const { PassThrough } = require('node:stream')
 const { CSVLoader } = require('../../app/loaders/csv-loader')
 
-jest.mock('fs')
+jest.mock('node:fs')
 
 describe('csvLoader tests', () => {
   test('should load a csv file', (done) => {
@@ -36,7 +36,7 @@ describe('csvLoader tests', () => {
     ]
     let lineCount = 1
     const testPath = 'someRandomPath'
-    fs.__setMockFileContent(testPath, testData)
+    fs.__setMockFileContent(testPath, testData.join(''))
     const uut = CSVLoader({ path: testPath, columns: ['a', 'b', 'c'] })
     uut
       .pump(uut)

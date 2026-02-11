@@ -1,11 +1,11 @@
 const { expect } = require('@jest/globals')
 const Loaders = require('../../app/loaders')
 const Destinations = require('../../app/destinations')
-const fs = require('fs')
+const fs = require('node:fs')
 const Etl = require('../../app/lib')
-const { Transform } = require('stream')
+const { Transform } = require('node:stream')
 
-jest.mock('fs')
+jest.mock('node:fs')
 
 describe('ETL tests', () => {
   afterEach(() => {
@@ -20,7 +20,7 @@ describe('ETL tests', () => {
       '4,5,6\n'
     ]
     const testPath = 'someRandomPath'
-    fs.__setMockFileContent(testPath, testData)
+    fs.__setMockFileContent(testPath, testData.join(''))
     const etl = new Etl.Etl()
 
     etl
@@ -153,7 +153,7 @@ describe('ETL tests', () => {
   test('should emit error event if destination fails', (done) => {
     const etl = new Etl.Etl()
     const errorMessage = 'Database error!'
-    fs.__setMockFileContent('irrelevant', ['a\n', '1\n'])
+    fs.__setMockFileContent('irrelevant', ['a\n', '1\n'].join(''))
     class ErrorDestination extends Transform {
       constructor () {
         super({ objectMode: true })

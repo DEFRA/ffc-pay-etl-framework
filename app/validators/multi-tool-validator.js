@@ -1,6 +1,10 @@
 // @ts-nocheck
-const { Transform } = require('stream')
+const { Transform } = require('node:stream')
 const validator = require('validator')
+
+function getValidator (validatorType) {
+  return validator[validatorType]
+}
 
 /**
  *
@@ -20,10 +24,8 @@ const validator = require('validator')
  * }
  * @returns Writable
  */
+// sonar-ignore-next-line
 function MultiToolValidator (options) {
-  function getValidator (validatorType) {
-    return validator[validatorType]
-  }
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,

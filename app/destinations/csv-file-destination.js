@@ -1,7 +1,7 @@
 const EventEmitter = require('node:events')
 const util = require('node:util')
 const { Writable } = require('node:stream')
-const fs = require('fs')
+const fs = require('node:fs')
 
 /**
  *
@@ -19,35 +19,52 @@ function CSVFileDestination (options) {
   const headers = options.headers
   const includeErrors = options.includeErrors
   const quotationMarks = options.quotationMarks
+
   let fileHandle
-  fs.open(fileName, 'w+', (_error, fd) => {
-    fileHandle = fd
-  })
+  try {
+    fileHandle = fs.openSync(fileName, 'w+')
+  } catch (error) {
+    throw new Error(`Failed to open file ${fileName}: ${error.message}`)
+  }
+
   let headersWritten = false
+
   const writable = new Writable({
     objectMode: true,
     write (chunk, _, callback) {
-      if (!headersWritten && headers) {
-        if (quotationMarks) {
-          fs.writeFileSync(fileHandle, `${chunk._columns.map(c => `"${c}"`).join(',')}\n`)
-        } else {
-          fs.writeFileSync(fileHandle, `${chunk._columns.join(',')}\n`)
+      try {
+        if (!headersWritten && headers) {
+          if (quotationMarks) {
+            const quotedColumns = chunk._columns.map(c => `"${c}"`).join(',')
+            fs.writeSync(fileHandle, quotedColumns + '\n')
+          } else {
+            fs.writeSync(fileHandle, `${chunk._columns.join(',')}\n`)
+          }
+          headersWritten = true
         }
-        headersWritten = true
-      }
-      if (chunk.errors.length === 0 || includeErrors) {
-        if (quotationMarks) {
-          fs.writeFileSync(fileHandle, `${chunk.map(c => `"${c}"`).join(',')}\n`)
-        } else {
-          fs.writeFileSync(fileHandle, `${chunk.map(c => `"${c}"`).join(',')}\n`)
+
+        const errors = Array.isArray(chunk.errors) ? chunk.errors : []
+
+        if (errors.length === 0 || includeErrors) {
+          const line = chunk.map(c => `"${c}"`).join(',') + '\n'
+          fs.writeSync(fileHandle, line)
         }
+
+        if (this.tasks && Array.isArray(this.tasks)) {
+          this.tasks.forEach(task => task.write(chunk))
+        }
+
+        lastChunk = chunk
+        callback()
+      } catch (err) {
+        callback(err)
       }
-      // @ts-ignore
-      this.tasks?.forEach(task => task.write(chunk))
-      lastChunk = chunk
-      callback()
     },
     final (callback) {
+      if (fileHandle) {
+        fs.closeSync(fileHandle)
+      }
+
       this.emit('result', lastChunk)
       callback()
     }
@@ -57,9 +74,11 @@ function CSVFileDestination (options) {
     setConnection: function (connection) {
       this.connection = connection
     }.bind(writable),
+
     getConnectionName: function () {
       return this.connection?.name
     }.bind(writable),
+
     setTasks: function (tasks) {
       this.tasks = tasks
     }.bind(writable)

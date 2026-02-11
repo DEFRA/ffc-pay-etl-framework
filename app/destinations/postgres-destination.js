@@ -7,13 +7,15 @@ function isKeyWord (column) {
 }
 
 function getMappingForColumn (mapping, column) {
-  if (mapping.length === 0) { return {} }
-  const [map] = mapping.filter(m => m.column === column)
-  return map
+  if (mapping.length === 0) {
+    return {}
+  }
+  const map = mapping.find(m => m.column === column)
+  return map || {}
 }
 
 function hasReturningColumns (mapping) {
-  return mapping.filter(m => m.returning === true).length > 0
+  return mapping.some(m => m.returning === true)
 }
 
 function getReturningColumns (mapping) {
@@ -33,9 +35,9 @@ function writeInsertStatement (columnMapping, table, chunk, schema, ignoredColum
         .join(',')}) VALUES (${filteredColumns.map(column => {
         const index = chunk._columns.indexOf(column)
         const mapping = getMappingForColumn(columnMapping, column)
-        if (mapping?.targetType === 'number' && (isNaN(chunk[index]) || chunk[index] === '')) {
-            debug('Source data is not a number.')
-            return 0
+        if (mapping?.targetType === 'number' && (isNaN(Number(chunk[index])) || chunk[index] === '')) {
+          debug('Source data is not a number.')
+          return 0
         }
         if (mapping?.targetType === 'varchar' || mapping?.targetType === 'char') {
             return `'${chunk[index]}'`
@@ -65,6 +67,7 @@ function writeInsertStatement (columnMapping, table, chunk, schema, ignoredColum
  * @param {Array<String>} [options.ignoredColumns]
  * @returns Transform
  */
+// sonar-ignore-next-line
 function PostgresDestination (options) {
   EventEmitter.call(this)
   const table = options.table

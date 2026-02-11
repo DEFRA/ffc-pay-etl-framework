@@ -5,7 +5,7 @@ const {
 } = require('../../app/destinations/postgres-destination')
 const { Readable } = require('node:stream')
 
-jest.mock('fs', () => ({
+jest.mock('node:fs', () => ({
   writeFileSync: jest.fn(),
   open: jest.fn().mockReturnValue({ fd: 1 })
 }))

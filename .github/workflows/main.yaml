@@ -7,7 +7,8 @@ on:
 jobs:
   version-bump:
     runs-on: ubuntu-latest
-
+    env:
+      BRANCH_NAME: ${{ github.head_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -64,14 +65,12 @@ jobs:
           git commit -S -m "merge main into feature branch" || echo "No changes to commit"
 
       - name: Bump version number
-        run: |
-          npm version patch
+        run: npm version patch
 
       - name: Ensure branch is checked out
-        run: |
-          git checkout ${{ github.head_ref }}
+        run: git checkout "$BRANCH_NAME"
 
       - name: Push version bump and commit with GPG sign
         run: |
-          git push --set-upstream origin ${{ github.head_ref }} --force
+          git push --set-upstream origin "$BRANCH_NAME" --force
           git push --tags

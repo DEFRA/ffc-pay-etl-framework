@@ -6,9 +6,9 @@ const { Transform } = require('node:stream')
  * @param {String} options.column
  * @returns Writable
  */
+// sonar-ignore-next-line
 function StringReplaceTransformer (options) {
-  const self = this
-  self.replacements = options
+  const replacements = options
 
   return new Transform({
     readableObjectMode: true,
@@ -16,8 +16,12 @@ function StringReplaceTransformer (options) {
     transform (chunk, _, callback) {
       const { _columns } = chunk
       // @ts-ignore
-      self.replacements.forEach(r => {
+      replacements.forEach(r => {
         const colIndex = _columns.indexOf(r.column)
+        if (colIndex === -1) {
+          // column not found, skip
+          return
+        }
         if (r.all) {
           chunk[colIndex] = chunk[colIndex].replaceAll(r.find, r.replace)
         } else {

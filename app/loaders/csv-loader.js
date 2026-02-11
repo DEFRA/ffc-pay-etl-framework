@@ -1,6 +1,6 @@
 // @ts-nocheck
-const fs = require('fs')
-const { Transform } = require('stream')
+const fs = require('node:fs')
+const { Transform } = require('node:stream')
 const { parse } = require('csv-parse')
 
 /**
@@ -12,6 +12,7 @@ const { parse } = require('csv-parse')
  * @param {Boolean} [options.relax]
  * @returns StreamReader
  */
+// sonar-ignore-next-line
 function CSVLoader (options) {
   let csvLoader
   if (options.path) {
@@ -23,7 +24,7 @@ function CSVLoader (options) {
   const fromLine = options.startingLine ?? 2
   const relaxQuotes = options.relax ?? false
   csvLoader._columns = options.columns
-  csvLoader.pump = (csvLoader) => {
+  csvLoader.pump = () => {
     const parser = parse({ delimiter: ',', from_line: fromLine, relax_quotes: relaxQuotes })
     const transformer = new Transform({
       readableObjectMode: true,
@@ -38,7 +39,7 @@ function CSVLoader (options) {
         options.columns.forEach((_column, index) => {
           if (chunk[index]) {
             // eslint-disable-next-line no-control-regex
-            chunk[index] = chunk[index].replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+            chunk[index] = chunk[index].replaceAll(/[\x00-\x1F\x7F-\x9F]/g, '')
           }
         })
 

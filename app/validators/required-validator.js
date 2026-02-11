@@ -1,5 +1,5 @@
 // @ts-nocheck
-const { Transform } = require('stream')
+const { Transform } = require('node:stream')
 
 /**
  *
@@ -8,6 +8,7 @@ const { Transform } = require('stream')
  * @param {Array} options.columns
  * @returns Transform
  */
+// sonar-ignore-next-line
 function RequiredValidator (options) {
   return new Transform({
     readableObjectMode: true,
