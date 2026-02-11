@@ -28,6 +28,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:unit": "PORT=0 node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=test",
     "test:watch": "jest --watchAll",
     "test:lint": "eslint",
     "test:lint:fix": "eslint --fix",
@@ -36,39 +37,5 @@
   },
   "keywords": [
     "ETL"
-  ],
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/jest/setEnvVars.js"
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.js",
-      "!**/*.test.js"
-    ],
-    "coverageDirectory": "test-output",
-    "coverageReporters": [
-      "text-summary",
-      "lcov"
-    ],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/test-output/",
-      "<rootDir>/test/"
-    ],
-    "modulePathIgnorePatterns": [
-      "node_modules"
-    ],
-    "reporters": [
-      "default",
-      [
-        "jest-junit",
-        {
-          "suiteName": "jest tests",
-          "outputDirectory": "test-output",
-          "outputName": "junit.xml"
-        }
-      ]
-    ]
-  }
+  ]
 }
