@@ -28,7 +28,6 @@
   },
   "scripts": {
     "test": "jest",
-    "test:unit": "PORT=0 node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=test",
     "test:watch": "jest --watchAll",
     "test:lint": "eslint",
     "test:lint:fix": "eslint --fix",
