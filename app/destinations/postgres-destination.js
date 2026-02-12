@@ -67,8 +67,7 @@ function writeInsertStatement (columnMapping, table, chunk, schema, ignoredColum
  * @param {Array<String>} [options.ignoredColumns]
  * @returns Transform
  */
-// sonar-ignore-next-line
-function PostgresDestination (options) {
+function postgresDestination (options) {
   EventEmitter.call(this)
   const table = options.table
   const connectionname = options.connectionname
@@ -133,7 +132,7 @@ function PostgresDestination (options) {
 }
 
 module.exports = {
-  PostgresDestination,
+  PostgresDestination: postgresDestination,
   writeInsertStatement,
   isKeyWord,
   getMappingForColumn,

@@ -24,8 +24,7 @@ function getValidator (validatorType) {
  * }
  * @returns Writable
  */
-// sonar-ignore-next-line
-function MultiToolValidator (options) {
+function multiToolValidator (options) {
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,
@@ -47,5 +46,5 @@ function MultiToolValidator (options) {
 }
 
 module.exports = {
-  MultiToolValidator
+  MultiToolValidator: multiToolValidator
 }

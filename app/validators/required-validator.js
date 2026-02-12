@@ -8,8 +8,7 @@ const { Transform } = require('node:stream')
  * @param {Array} options.columns
  * @returns Transform
  */
-// sonar-ignore-next-line
-function RequiredValidator (options) {
+function requiredValidator (options) {
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,
@@ -32,5 +31,5 @@ function RequiredValidator (options) {
 }
 
 module.exports = {
-  RequiredValidator
+  RequiredValidator: requiredValidator
 }

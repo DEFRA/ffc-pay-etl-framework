@@ -14,8 +14,7 @@ const { Transform } = require('node:stream')
  * @param {String} options.locale
  * @returns StreamReader
  */
-// sonar-ignore-next-line
-function FakerTransformer (options) {
+function fakerTransformer (options) {
   const columns = options.columns
   let faker
   if (options.locale) {
@@ -45,5 +44,5 @@ function FakerTransformer (options) {
 }
 
 module.exports = {
-  FakerTransformer
+  FakerTransformer: fakerTransformer
 }

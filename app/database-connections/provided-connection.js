@@ -5,8 +5,7 @@
  * @param {Object} options.sequelize
  * @returns Connection
  */
-// sonar-ignore-next-line
-async function ProvidedConnection (options) {
+async function providedConnection (options) {
   const connectionname = options.connectionname
   const sequelize = options.sequelize
   return {
@@ -16,5 +15,5 @@ async function ProvidedConnection (options) {
 }
 
 module.exports = {
-  ProvidedConnection
+  ProvidedConnection: providedConnection
 }

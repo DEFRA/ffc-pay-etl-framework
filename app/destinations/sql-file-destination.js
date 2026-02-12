@@ -19,8 +19,7 @@ const SQL_MODE = {
  * @param {Boolean} options.includeErrors
  * @returns Transform
  */
-// sonar-ignore-next-line
-function SQLFileDestination (options) {
+function sqlFileDestination (options) {
   const fileName = options.fileName
   const sqlMode = options.mode
   const table = options.table
@@ -64,6 +63,6 @@ function SQLFileDestination (options) {
 }
 
 module.exports = {
-  SQLFileDestination,
+  SQLFileDestination: sqlFileDestination,
   SQL_MODE
 }

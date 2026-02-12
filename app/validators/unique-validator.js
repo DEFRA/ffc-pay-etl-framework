@@ -7,8 +7,7 @@ const { Transform } = require('node:stream')
  * @param {String} options.column
  * @returns Transform
  */
-// sonar-ignore-next-line
-function UniqueValidator (options) {
+function uniqueValidator (options) {
   const column = options.column
   const message = options.message || 'Expected unique value is not unique'
   const uniqueColumnRows = new Set()
@@ -43,5 +42,5 @@ function UniqueValidator (options) {
 }
 
 module.exports = {
-  UniqueValidator
+  UniqueValidator: uniqueValidator
 }

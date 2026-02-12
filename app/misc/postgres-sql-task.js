@@ -23,8 +23,7 @@ function doPlaceHolderValueInterpolations (chunk, sql, placeholders) {
   return sql
 }
 
-// sonar-ignore-next-line
-function PostgresSQLTask (options) {
+function postgresSQLTask (options) {
   const passthrough = new PassThrough({
     readableObjectMode: true,
     writableObjectMode: true,
@@ -45,7 +44,6 @@ function PostgresSQLTask (options) {
       callback(null, chunk)
     }
   })
-  // Should definately split this out into a mixin
   Object.assign(passthrough, {
     setConnection: function (connection) {
       this.connection = connection
@@ -61,7 +59,7 @@ function PostgresSQLTask (options) {
 }
 
 module.exports = {
-  PostgresSQLTask,
+  PostgresSQLTask: postgresSQLTask,
   getPlaceHolders,
   doPlaceHolderValueInterpolations
 }

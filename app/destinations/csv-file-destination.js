@@ -12,7 +12,7 @@ const fs = require('node:fs')
  * @param {Boolean} options.quotationMarks
  * @returns Writable
  */
-function CSVFileDestination (options) {
+function csvFileDestination (options) {
   EventEmitter.call(this)
   let lastChunk
   const fileName = options.fileName
@@ -87,8 +87,8 @@ function CSVFileDestination (options) {
   return writable
 }
 
-util.inherits(CSVFileDestination, EventEmitter)
+util.inherits(csvFileDestination, EventEmitter)
 
 module.exports = {
-  CSVFileDestination
+  CSVFileDestination: csvFileDestination
 }

@@ -6,8 +6,7 @@ const { Transform } = require('node:stream')
  * @param {String} options.column
  * @returns Writable
  */
-// sonar-ignore-next-line
-function ToUpperCaseTransformer (options) {
+function toUpperCaseTransformer (options) {
   const column = options.column
 
   return new Transform({
@@ -26,5 +25,5 @@ function ToUpperCaseTransformer (options) {
 }
 
 module.exports = {
-  ToUpperCaseTransformer
+  ToUpperCaseTransformer: toUpperCaseTransformer
 }

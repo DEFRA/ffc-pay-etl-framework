@@ -6,8 +6,7 @@ const { Transform } = require('node:stream')
  * @param {String} options.column
  * @returns Writable
  */
-// sonar-ignore-next-line
-function StringReplaceTransformer (options) {
+function stringReplaceTransformer (options) {
   const replacements = options
 
   return new Transform({
@@ -35,5 +34,5 @@ function StringReplaceTransformer (options) {
 }
 
 module.exports = {
-  StringReplaceTransformer
+  StringReplaceTransformer: stringReplaceTransformer
 }

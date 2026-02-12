@@ -12,19 +12,18 @@ const { parse } = require('csv-parse')
  * @param {Boolean} [options.relax]
  * @returns StreamReader
  */
-// sonar-ignore-next-line
-function CSVLoader (options) {
-  let csvLoader
+function csvLoader (options) {
+  let loader
   if (options.path) {
-    csvLoader = fs.createReadStream(options.path)
+    loader = fs.createReadStream(options.path)
   } else {
-    csvLoader = options.stream
+    loader = options.stream
   }
   let lineCount = 1
   const fromLine = options.startingLine ?? 2
   const relaxQuotes = options.relax ?? false
-  csvLoader._columns = options.columns
-  csvLoader.pump = () => {
+  loader._columns = options.columns
+  loader.pump = () => {
     const parser = parse({ delimiter: ',', from_line: fromLine, relax_quotes: relaxQuotes })
     const transformer = new Transform({
       readableObjectMode: true,
@@ -46,14 +45,14 @@ function CSVLoader (options) {
         callback(null, chunk)
       }
     })
-    return csvLoader
+    return loader
       .pipe(parser)
       .pipe(transformer)
   }
 
-  return csvLoader
+  return loader
 }
 
 module.exports = {
-  CSVLoader
+  CSVLoader: csvLoader
 }

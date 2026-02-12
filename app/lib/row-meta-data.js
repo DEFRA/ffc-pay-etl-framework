@@ -1,8 +1,7 @@
 // @ts-nocheck
 const { Transform } = require('node:stream')
 
-// sonar-ignore-next-line
-function RowMetaData () {
+function rowMetaData () {
   return new Transform({
     readableObjectMode: true,
     writableObjectMode: true,
@@ -21,5 +20,5 @@ function RowMetaData () {
 }
 
 module.exports = {
-  RowMetaData
+  RowMetaData: rowMetaData
 }
