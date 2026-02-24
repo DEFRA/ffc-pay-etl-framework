@@ -39,7 +39,7 @@ extends:
     appFrameworkType: nodejs   # Optional: nodejs (default), dotnet, java
     Type: npm           # Optional: kubernetes (default), npm, functions, nuget
     npmLegacyPeerDeps: false   # Optional: default is false
+    failOnThreshold: moderate  # Optional: moderate (default), low, high, critical
     prDeployment: ${{ parameters.prDeployment }}
     branchDeployment: ${{ parameters.branchDeployment }}
     sndDeployment: ${{ parameters.sndDeployment }}
-    # failOnThreshold: moderate
