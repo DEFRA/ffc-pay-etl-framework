@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A framework for creating ETL pipelines in node",
   "main": "index.js",
   "repository": "https://github.com/DEFRA/ffc-pay-etl-framework",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@faker-js/faker": "8.4.1",
     "csv-parse": "6.1.0",
-    "sequelize": "6.37.3",
+    "sequelize": "6.37.8",
     "validator": "13.15.23"
   },
   "devDependencies": {
@@ -28,6 +28,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:unit": "PORT=0 node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=test/unit",
     "test:watch": "jest --watchAll",
     "test:lint": "eslint",
     "test:lint:fix": "eslint --fix",
@@ -37,38 +38,9 @@
   "keywords": [
     "ETL"
   ],
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/jest/setEnvVars.js"
-    ],
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "**/*.js",
-      "!**/*.test.js"
-    ],
-    "coverageDirectory": "test-output",
-    "coverageReporters": [
-      "text-summary",
-      "lcov"
-    ],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/test-output/",
-      "<rootDir>/test/"
-    ],
-    "modulePathIgnorePatterns": [
-      "node_modules"
-    ],
-    "reporters": [
-      "default",
-      [
-        "jest-junit",
-        {
-          "suiteName": "jest tests",
-          "outputDirectory": "test-output",
-          "outputName": "junit.xml"
-        }
-      ]
+  "nodemonConfig": {
+    "ignore": [
+      "**/test-output/**"
     ]
   }
 }

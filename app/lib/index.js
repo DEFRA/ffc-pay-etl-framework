@@ -1,7 +1,5 @@
-// @ts-nocheck
 const EventEmitter = require('node:events')
-const util = require('node:util')
-const { RowMetaData } = require('./rowMetaData')
+const { RowMetaData } = require('./row-meta-data')
 const { compose } = require('node:stream')
 
 /**
@@ -18,88 +16,87 @@ const { compose } = require('node:stream')
  *
  * @returns Etl
  */
-function Etl () {
-  EventEmitter.call(this)
-  const self = this
-  self.store = []
-  self.beforeETLList = []
-  self.connectionList = []
-  self.validatorList = []
-  self.transformationList = []
-  self.destinationList = []
-
-  this.loader = (loader) => {
-    self.loader = loader
-    return self
+class Etl extends EventEmitter {
+  constructor () {
+    super()
+    this.store = []
+    this.beforeETLList = []
+    this.connectionList = []
+    this.validatorList = []
+    this.transformationList = []
+    this.destinationList = []
   }
 
-  this.pump = () => {
+  loader (loader) {
+    this.loader = loader
+    return this
+  }
+
+  pump () {
     this.beforeETLList.forEach(task => {
       task.write({})
     })
+
     this.loader
       .pump(this.loader)
       .pipe(
         compose(
           RowMetaData(),
-          ...self.validatorList,
-          ...self.transformationList,
-          ...self.destinationList.map(dl => dl.on('result', (data) => self.emit('result', data)))
+          ...this.validatorList,
+          ...this.transformationList,
+          ...this.destinationList.map(dl => dl.on('result', data => this.emit('result', data)))
         )
-        // @ts-ignore
       )
-      .on('error', (err) => self.emit('error', err))
-    return self
+      .on('error', err => this.emit('error', err))
+    return this
   }
 
-  this.beforeETL = (pipelineTask) => {
+  beforeETL (pipelineTask) {
     const connectionname = pipelineTask.getConnectionName()
-    const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+    const connection = this.connectionList.find(c => c.name === connectionname)
     if (!connection) {
       throw new Error(`Connection with name ${connectionname} not found`)
     }
     pipelineTask.setConnection(connection)
-    pipelineTask.setETL(self)
-    self.beforeETLList.push(pipelineTask)
-    return self
+    pipelineTask.setETL(this)
+    this.beforeETLList.push(pipelineTask)
+    return this
   }
 
-  this.connection = (connection) => {
-    self.connectionList.push(connection)
-    return self
+  connection (connection) {
+    this.connectionList.push(connection)
+    return this
   }
 
-  this.validator = (validator) => {
-    self.validatorList.push(validator)
-    return self
+  validator (validator) {
+    this.validatorList.push(validator)
+    return this
   }
 
-  this.destination = (destination, ...tasks) => {
+  destination (destination, ...tasks) {
     const connectionname = destination.getConnectionName()
-    const connection = this.connectionList.filter(c => c.name === connectionname)[0]
+    const connection = this.connectionList.find(c => c.name === connectionname)
     if (!connection && destination.type === 'PostgresDestination') {
       throw new Error(`No connection could be found with name ${connectionname}`)
     } else {
       destination.setConnection(connection)
     }
 
-    if (tasks) {
+    if (tasks && tasks.length > 0) {
       for (const task of tasks) {
-        task.setETL(self)
+        task.setETL(this)
       }
       destination.setTasks(tasks)
     }
-    self.destinationList.push(destination)
-    return self
+    this.destinationList.push(destination)
+    return this
   }
 
-  this.transform = (transform) => {
-    self.transformationList.push(transform)
-    return self
+  transform (transform) {
+    this.transformationList.push(transform)
+    return this
   }
 }
-
-util.inherits(Etl, EventEmitter)
 
 module.exports = {
   Etl
