@@ -1,6 +1,6 @@
 {
   "name": "ffc-pay-etl-framework",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A framework for creating ETL pipelines in node",
   "main": "index.js",
   "repository": "https://github.com/DEFRA/ffc-pay-etl-framework",

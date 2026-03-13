@@ -2,7 +2,7 @@ const Validators = require('./app/validators')
 const Transformers = require('./app/transformers')
 const Loaders = require('./app/loaders')
 const Destinations = require('./app/destinations')
-const Connections = require('./app/database_connections')
+const Connections = require('./app/database-connections')
 const Etl = require('./app/lib')
 const Misc = require('./app/misc')
 
