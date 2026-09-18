@@ -36,10 +36,10 @@ describe('fakerTransformer tests', () => {
       columns: [
         {
           name: 'column2',
-          faker: 'location.postalCode' // Note: 'zipCode' is renamed to 'postalCode' in v9/v10
+          faker: 'location.zipCode'
         }
       ],
-      locale: 'enGB' // Note: Faker v10 uses camelCase keys ('enGB') in the allLocales registry
+      locale: 'en_GB' // Note: Faker v10 uses snake_case keys ('en_GB') in the allLocales registry
     })
     const testData = ['a', 'b', 'c']
     testData.errors = []
