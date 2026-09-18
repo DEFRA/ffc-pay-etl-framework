@@ -3,7 +3,7 @@ const { Faker, allLocales, faker: defaultFaker } = require('@faker-js/faker')
 
 /**
  * Creates a Node.js Transform stream that replaces placeholder data with fake data.
- * 
+ *
  * @param {Object} options
  * @param {Array} options.columns List of column names and their mapped Faker methods.
  * @param {String} options.locale Optional locale string identifier (e.g., 'en', 'de', 'en_IN').
@@ -40,7 +40,7 @@ function fakerTransformer (options) {
 
       for (const column of columns) {
         const colIndex = _columns.indexOf(column.name)
-        
+
         // Guard: Skip processing if the configured column name doesn't exist in the chunk headers
         if (colIndex === -1) {
           continue

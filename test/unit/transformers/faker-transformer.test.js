@@ -17,7 +17,7 @@ describe('fakerTransformer tests', () => {
     testData.rowId = 1
     testData._columns = ['column1', 'column2', 'column3']
     const readable = Readable.from([testData])
-    
+
     readable
       .pipe(uut)
       .pipe(new PassThrough({
@@ -54,11 +54,11 @@ describe('fakerTransformer tests', () => {
         transform (chunk, _, callback) {
           expect(chunk.errors.length).toEqual(0)
           expect(chunk[1]).not.toEqual('b')
-          
+
           // Regex checks for common UK Outward/Inward post code formats (e.g., "M1 1AA", "EC1A 1BB")
           const regex = /^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][A-Z]{2}$/i
           expect(regex.test(chunk[1])).toBe(true)
-          
+
           done()
           callback(null, chunk)
         }
