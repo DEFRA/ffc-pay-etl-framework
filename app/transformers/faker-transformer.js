@@ -45,7 +45,8 @@ function fakerTransformer (options) {
     writableObjectMode: true,
     transform (chunk, _, callback) {
       if (fakerLoadError) {
-        return callback(fakerLoadError)
+        callback(fakerLoadError)
+        return
       }
 
       const runTransform = async () => {
@@ -67,19 +68,21 @@ function fakerTransformer (options) {
 
           // Guard: Verify that the method exists and can be executed safely
           if (typeof fakerMethod !== 'function') {
-            throw new Error(`Faker method "${column.faker}" is invalid or does not exist.`)
+            throw new TypeError(`Faker method "${column.faker}" is invalid or does not exist.`)
           }
 
           chunk[colIndex] = fakerMethod()
         }
 
-        callback(null, chunk)
+        return chunk
       }
 
-      runTransform().catch((err) => {
-        fakerLoadError = err
-        callback(err)
-      })
+      runTransform()
+        .then((transformed) => callback(null, transformed))
+        .catch((err) => {
+          fakerLoadError = err
+          callback(err)
+        })
     }
   })
 }
