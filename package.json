@@ -27,7 +27,7 @@
     "prettier": "3.3.3"
   },
   "scripts": {
-    "test": "jest",
+    "test": "PORT=0 node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=test/unit",
     "test:unit": "PORT=0 node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=test/unit",
     "test:watch": "jest --watchAll",
     "test:lint": "eslint",
