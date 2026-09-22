@@ -122,7 +122,7 @@ function postgresDestination (options) {
       this.connection = connection
     }.bind(transform),
     getConnectionName: function () {
-      return this.connection?.name
+      return this.connection?.name ?? connectionname
     }.bind(transform),
     setTasks: function (tasks) {
       this.tasks = tasks
