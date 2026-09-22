@@ -2,7 +2,7 @@
  *
  * @param {Object} options
  * @param {Object} options.connectionname
- * @param {Object} options.connection - the object returned by ffc-database's Database#connect()
+ * @param {Object} options.connection - the object returned by ffc-database's Database.connect()
  * @returns Connection
  */
 async function providedConnection (options) {

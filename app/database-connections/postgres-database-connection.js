@@ -26,7 +26,7 @@ async function postgresDatabaseConnection (options) {
     username: options.username,
     password: options.password,
     host: options.host,
-    port: options.port,
+    port: options.port || 5432,
     schema: options.schema,
     ssl: options.ssl,
     tables: options.tables,
