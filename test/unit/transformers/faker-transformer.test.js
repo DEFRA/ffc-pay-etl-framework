@@ -91,6 +91,36 @@ describe('fakerTransformer tests', () => {
       }))
   })
 
+  test('should support locales that need a fallback to base data', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'en_GB'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          expect(chunk.errors.length).toEqual(0)
+          expect(chunk[1]).not.toEqual('b')
+          expect(typeof chunk[1]).toBe('string')
+          done()
+          callback(null, chunk)
+        }
+      }))
+  })
+
   test('should map en_IND locale to en_IN', (done) => {
     const uut = FakerTransformer({
       columns: [
