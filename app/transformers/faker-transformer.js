@@ -27,7 +27,18 @@ function fakerTransformer (options) {
         throw new Error(`Locale "${options.locale}" is not supported by Faker v10.`)
       }
 
-      faker = new Faker({ locale: selectedLocale })
+      // Build a fallback chain so undefined locale data (e.g. company.name_pattern in en_GB)
+      // falls back through en and finally base, matching Faker v10's locale resolution.
+      // Faker v10's allLocales registry always includes 'en' and 'base'.
+      const localeChain = [selectedLocale]
+      if (localeKey !== 'en') {
+        localeChain.push(allLocales.en)
+      }
+      if (localeKey !== 'base') {
+        localeChain.push(allLocales.base)
+      }
+
+      faker = new Faker({ locale: localeChain })
     } else {
       faker = defaultFaker
     }

@@ -91,6 +91,36 @@ describe('fakerTransformer tests', () => {
       }))
   })
 
+  test('should support locales that need a fallback to base data', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'en_GB'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          expect(chunk.errors.length).toEqual(0)
+          expect(chunk[1]).not.toEqual('b')
+          expect(typeof chunk[1]).toBe('string')
+          done()
+          callback(null, chunk)
+        }
+      }))
+  })
+
   test('should map en_IND locale to en_IN', (done) => {
     const uut = FakerTransformer({
       columns: [
@@ -190,5 +220,95 @@ describe('fakerTransformer tests', () => {
         .on('error', reject)
         .on('data', resolve)
     })).rejects.toThrow('Faker method "does.not.exist" is invalid or does not exist.')
+  })
+
+  test('should use cached error for chunks after the first failure', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'does.not.exist'
+        }
+      ]
+    })
+
+    const firstChunk = ['a', 'b', 'c']
+    firstChunk.errors = []
+    firstChunk.rowId = 1
+    firstChunk._columns = ['column1', 'column2', 'column3']
+
+    const secondChunk = ['d', 'e', 'f']
+    secondChunk.errors = []
+    secondChunk.rowId = 2
+    secondChunk._columns = ['column1', 'column2', 'column3']
+
+    uut._transform(firstChunk, 'utf8', (err) => {
+      expect(err.message).toContain('Faker method "does.not.exist" is invalid or does not exist.')
+
+      uut._transform(secondChunk, 'utf8', (secondErr) => {
+        expect(secondErr.message).toContain('Faker method "does.not.exist" is invalid or does not exist.')
+        done()
+      })
+    })
+  })
+
+  test('should support the en locale without duplicate fallback entries', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'en'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          expect(chunk.errors.length).toEqual(0)
+          expect(chunk[1]).not.toEqual('b')
+          expect(typeof chunk[1]).toBe('string')
+          done()
+          callback(null, chunk)
+        }
+      }))
+  })
+
+  test('should support the base locale without duplicate fallback entries', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'base'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          expect(chunk.errors.length).toEqual(0)
+          expect(chunk[1]).not.toEqual('b')
+          expect(typeof chunk[1]).toBe('string')
+          done()
+          callback(null, chunk)
+        }
+      }))
   })
 })
