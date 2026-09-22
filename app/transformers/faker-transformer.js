@@ -20,7 +20,13 @@ function fakerTransformer (options) {
 
     // Resolve the locale instance safely using the Faker v10 allLocales registry
     if (options.locale) {
-      const localeKey = options.locale === 'en_IND' ? 'en_IN' : options.locale
+      // Back-compat mapping for Faker v8 locale names, plus normalization of
+      // hyphenated locales (e.g. 'en-GB') to the snake_case keys Faker v10 expects.
+      let localeKey = options.locale.replace(/-/g, '_')
+      if (localeKey === 'en_IND') {
+        localeKey = 'en_IN'
+      }
+
       const selectedLocale = allLocales[localeKey]
 
       if (!selectedLocale) {
@@ -29,13 +35,16 @@ function fakerTransformer (options) {
 
       // Build a fallback chain so undefined locale data (e.g. company.name_pattern in en_GB)
       // falls back through en and finally base, matching Faker v10's locale resolution.
-      // Faker v10's allLocales registry always includes 'en' and 'base'.
       const localeChain = [selectedLocale]
-      if (localeKey !== 'en') {
+      if (localeKey !== 'en' && allLocales.en) {
         localeChain.push(allLocales.en)
       }
-      if (localeKey !== 'base') {
+      if (localeKey !== 'base' && allLocales.base) {
         localeChain.push(allLocales.base)
+      }
+
+      if (process.env.DEBUG_FAKER_TRANSFORMER === 'true') {
+        console.log(`[ffc-pay-etl-framework] FakerTransformer resolved locale "${options.locale}" to chain: ${localeChain.map(l => l?.metadata?.code ?? 'base').join(', ')}`)
       }
 
       faker = new Faker({ locale: localeChain })

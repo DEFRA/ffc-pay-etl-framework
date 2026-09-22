@@ -311,4 +311,68 @@ describe('fakerTransformer tests', () => {
         }
       }))
   })
+
+  test('should normalize hyphenated locale keys', (done) => {
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'en-GB'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          expect(chunk.errors.length).toEqual(0)
+          expect(chunk[1]).not.toEqual('b')
+          expect(typeof chunk[1]).toBe('string')
+          done()
+          callback(null, chunk)
+        }
+      }))
+  })
+
+  test('should log the resolved locale chain when DEBUG_FAKER_TRANSFORMER is true', (done) => {
+    const originalDebug = process.env.DEBUG_FAKER_TRANSFORMER
+    process.env.DEBUG_FAKER_TRANSFORMER = 'true'
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+    const uut = FakerTransformer({
+      columns: [
+        {
+          name: 'column2',
+          faker: 'company.name'
+        }
+      ],
+      locale: 'en_GB'
+    })
+    const testData = ['a', 'b', 'c']
+    testData.errors = []
+    testData.rowId = 1
+    testData._columns = ['column1', 'column2', 'column3']
+    const readable = Readable.from([testData])
+
+    readable
+      .pipe(uut)
+      .pipe(new PassThrough({
+        objectMode: true,
+        transform (chunk, _, callback) {
+          process.env.DEBUG_FAKER_TRANSFORMER = originalDebug
+          expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[ffc-pay-etl-framework] FakerTransformer resolved locale "en_GB" to chain: en_GB'))
+          consoleSpy.mockRestore()
+          callback(null, chunk)
+          done()
+        }
+      }))
+  })
 })
