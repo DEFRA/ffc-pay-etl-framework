@@ -1,6 +1,7 @@
-const DEFAULT_PORT = 5432
-const { Sequelize } = require('sequelize')
+const { Database } = require('ffc-database')
 const debug = require('debug')('connection')
+
+const DEFAULT_PORT = 5432
 
 /**
  *
@@ -11,32 +12,44 @@ const debug = require('debug')('connection')
  * @param {Object} options.database
  * @param {Object} options.host
  * @param {Object} options.port
+ * @param {Object} [options.schema]
+ * @param {Object} [options.ssl]
+ * @param {Object} [options.tables]
+ * @param {Object} [options.pool]
+ * @param {Boolean} [options.useAzureManagedIdentity]
+ * @param {String} [options.azureClientId]
  * @returns Connection
  */
 async function postgresDatabaseConnection (options) {
   const connectionname = options.connectionname
-  const username = options.username
-  const password = options.password
-  const database = options.database
-  const host = options.host
-  const port = options.port || DEFAULT_PORT
 
-  const sequelize = new Sequelize(database, username, password, {
-    host,
-    port,
-    dialect: 'postgres',
-    logging: false
+  const database = new Database({
+    database: options.database,
+    username: options.username,
+    password: options.password,
+    host: options.host,
+    port: options.port || DEFAULT_PORT,
+    schema: options.schema,
+    ssl: options.ssl,
+    tables: options.tables,
+    pool: options.pool,
+    useAzureManagedIdentity: options.useAzureManagedIdentity,
+    azureClientId: options.azureClientId
   })
 
   try {
-    await sequelize.authenticate()
-    debug('sequelize.authenticate succeeded')
+    const connection = database.connect()
+    await connection.client.raw('select 1')
+    debug('database connection succeeded')
     return {
       name: connectionname,
-      db: sequelize
+      db: {
+        ...connection,
+        query: (sql) => connection.client.raw(sql)
+      }
     }
   } catch (e) {
-    debug('sequelize.authenticate failed')
+    debug('database connection failed')
     debug(e)
     throw e
   }
