@@ -1,6 +1,8 @@
 const { Database } = require('ffc-database')
 const debug = require('debug')('connection')
 
+const DEFAULT_PORT = 5432
+
 /**
  *
  * @param {Object} options
@@ -26,7 +28,7 @@ async function postgresDatabaseConnection (options) {
     username: options.username,
     password: options.password,
     host: options.host,
-    port: options.port || 5432,
+    port: options.port || DEFAULT_PORT,
     schema: options.schema,
     ssl: options.ssl,
     tables: options.tables,
