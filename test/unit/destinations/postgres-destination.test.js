@@ -250,6 +250,11 @@ describe('postgresDestination tests', () => {
     uut.setConnection(mockConnection)
     expect(uut.getConnectionName()).toEqual(mockConnection.name)
   })
+
+  test('should fall back to configured connection name when connection has not been set', () => {
+    const uut = new PostgresDestination(config)
+    expect(uut.getConnectionName()).toEqual(config.connectionname)
+  })
   test('should return true if mapping contains one or more mappings that have the returning flag set', () => {
     const newConfig = JSON.parse(JSON.stringify(config))
     newConfig.mapping[0].returning = true
